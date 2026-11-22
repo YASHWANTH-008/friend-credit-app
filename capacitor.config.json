@@ -1,0 +1,8 @@
+{
+  "appId": "com.example.friendcredit",
+  "appName": "FriendCredit",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
