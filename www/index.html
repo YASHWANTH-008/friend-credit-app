@@ -42,14 +42,14 @@
         }
     </script>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col pb-24">
 
     <!-- Toast Notification Container (Replaces alert) -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-24 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-30 bg-white/85 dark:bg-black/85 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800/90">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800/90">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
             <!-- Brand Logo -->
             <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm shadow-indigo-500/30">
@@ -82,23 +82,22 @@
 
                 <!-- Backup / Export Dropdown -->
                 <div class="relative" id="backup-dropdown-wrapper">
-                    <button id="backup-menu-btn" type="button" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 text-sm font-medium px-3 py-2 rounded-xl transition">
+                    <button id="backup-menu-btn" type="button" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 text-sm font-medium px-3 py-2 rounded-xl transition cursor-pointer">
                         <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span class="hidden sm:inline">Backup</span>
                     </button>
-                    <!-- Dropdown Panel -->
                     <div id="backup-menu" class="hidden absolute right-0 mt-2 w-60 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-800 py-1.5 z-40">
                         <div class="px-3.5 py-1.5 flex items-center justify-between">
                             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Data Safety</span>
                             <span id="last-backup-label" class="text-[10px] text-zinc-500">Never backed up</span>
                         </div>
-                        <button id="export-json-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5">
+                        <button id="export-json-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5 cursor-pointer">
                             <span class="text-indigo-500 font-bold">{}</span> Export JSON Backup
                         </button>
-                        <button id="copy-backup-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5">
+                        <button id="copy-backup-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5 cursor-pointer">
                             <span class="text-sky-400 font-bold">⎘</span> Copy Backup Text
                         </button>
-                        <button id="export-csv-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5">
+                        <button id="export-csv-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5 cursor-pointer">
                             <span class="text-emerald-500 font-bold">⊞</span> Export CSV Spreadsheet
                         </button>
                         <div class="my-1 border-t border-slate-100 dark:border-zinc-800"></div>
@@ -110,10 +109,8 @@
                 </div>
 
                 <!-- Theme Toggle Button -->
-                <button id="theme-toggle" type="button" aria-label="Toggle Dark Mode" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 transition">
-                    <!-- Sun Icon (shown in dark mode) -->
+                <button id="theme-toggle" type="button" aria-label="Toggle Dark Mode" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 transition cursor-pointer">
                     <svg id="icon-sun" class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <!-- Moon Icon (shown in light mode) -->
                     <svg id="icon-moon" class="w-5 h-5 block dark:hidden text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                 </button>
             </div>
@@ -121,7 +118,7 @@
     </header>
 
     <!-- Main Container -->
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-7 space-y-5">
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-7 space-y-5">
 
         <!-- Automatic Data Safety / Backup Reminder Banner -->
         <div id="backup-reminder-banner" class="hidden rounded-2xl p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -145,66 +142,73 @@
         </div>
 
         <!-- 1. Dashboard Summary Cards (4 Cards) -->
-        <section aria-label="Summary Overview" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <!-- Total You Owe -->
+        <section id="summary-page-section" aria-label="Summary Overview" class="hidden space-y-4">
             <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Total You Owe</span>
-                    <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </span>
-                </div>
-                <div id="stat-outstanding" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">₹0</div>
-                <p id="stat-outstanding-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Pending dues to friends</p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Summary Page</p>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Credit Overview</h2>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Total borrowed balance, repaid amount, active friends, and overdue dues</p>
             </div>
 
-            <!-- Total Repaid -->
-            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Total Repaid</span>
-                    <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </span>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <!-- Total You Owe -->
+                <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Total You Owe</span>
+                        <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </span>
+                    </div>
+                    <div id="stat-outstanding" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">₹0</div>
+                    <p id="stat-outstanding-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Pending dues to friends</p>
                 </div>
-                <div id="stat-repaid" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">₹0</div>
-                <p id="stat-repaid-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Out of ₹0 borrowed</p>
-            </div>
 
-            <!-- Friends Owed -->
-            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Friends Owed</span>
-                    <span class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    </span>
+                <!-- Total Repaid -->
+                <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Total Repaid</span>
+                        <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </span>
+                    </div>
+                    <div id="stat-repaid" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">₹0</div>
+                    <p id="stat-repaid-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Out of ₹0 borrowed</p>
                 </div>
-                <div id="stat-friends-count" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">0</div>
-                <p id="stat-friends-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Active lenders</p>
-            </div>
 
-            <!-- Overdue Count / Amount -->
-            <div id="stat-overdue-card" class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm cursor-pointer hover:border-rose-500/50 transition" title="Click to filter overdue items">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Overdue</span>
-                    <span class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </span>
+                <!-- Friends Owed -->
+                <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Friends Owed</span>
+                        <span class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </span>
+                    </div>
+                    <div id="stat-friends-count" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">0</div>
+                    <p id="stat-friends-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Add first credit</p>
                 </div>
-                <div id="stat-overdue-amount" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400">₹0</div>
-                <p id="stat-overdue-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">0 overdue entries</p>
+
+                <!-- Overdue -->
+                <div id="stat-overdue-card" title="Click to view overdue entries on Home" class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm cursor-pointer hover:border-rose-300 dark:hover:border-rose-500/40 transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Overdue</span>
+                        <span class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </span>
+                    </div>
+                    <div id="stat-overdue-amount" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400">₹0</div>
+                    <p id="stat-overdue-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">No overdue dues</p>
+                </div>
             </div>
         </section>
 
-        <!-- Main Workspace Grid: Left Form + Right List Views -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- 2. Home Page View (All Entries + Ends With Add Borrowed Credit) -->
+        <section id="home-page-section" class="space-y-6">
+            <div id="views-container" class="hidden"></div>
 
-            <!-- 2. Quick Credit Entry Form (Left Column on Desktop) -->
-            <section class="lg:col-span-4 bg-white dark:bg-zinc-900/90 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm lg:sticky lg:top-24">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Add Borrowed Credit</h2>
-                        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Log money taken from a friend</p>
-                    </div>
+            <!-- End of Home Page: Add Borrowed Credit Form -->
+            <div id="add-credit-section" class="bg-white dark:bg-zinc-900/90 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <div class="mb-4">
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Add Borrowed Credit</h2>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Log money taken from a friend</p>
                 </div>
 
                 <form id="add-credit-form" class="space-y-4">
@@ -254,40 +258,45 @@
                         Save Credit
                     </button>
                 </form>
-            </section>
+            </div>
+        </section>
 
-            <!-- 3. Right Column: View Tabs, Search, Filters & Records -->
-            <section class="lg:col-span-8 space-y-4">
-                <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 border border-slate-200/80 dark:border-zinc-800 shadow-sm space-y-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-zinc-950 border border-slate-200/70 dark:border-zinc-800 self-start">
-                            <button type="button" id="tab-by-friend" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm">
-                                By Friend
-                            </button>
-                            <button type="button" id="tab-all-entries" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
-                                All Entries
-                            </button>
-                        </div>
-
-                        <div class="relative flex-1 sm:max-w-xs">
-                            <input type="search" id="search-input" placeholder="Search friend, UPI, or note..."
-                                class="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                        <button type="button" data-filter="all" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white transition cursor-pointer">All</button>
-                        <button type="button" data-filter="pending" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer">Pending</button>
-                        <button type="button" data-filter="overdue" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer">Overdue</button>
-                        <button type="button" data-filter="settled" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer">Settled</button>
-                    </div>
-                </div>
-
-                <div id="views-container" class="space-y-4"></div>
-            </section>
-        </div>
+        <!-- 3. Dedicated People Page View -->
+        <section id="people-page-section" class="hidden space-y-4">
+            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">People Page</p>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Friends &amp; Balances</h2>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Manage balances, UPI quick-pay, and individual credits per friend</p>
+            </div>
+            <div id="people-page-container" class="space-y-3"></div>
+        </section>
     </main>
+
+    <!-- Bottom Navigation Bar With Home, People & Summary Buttons -->
+    <nav aria-label="Primary Navigation" class="fixed bottom-0 inset-x-0 z-40 bg-slate-100/95 dark:bg-zinc-950/95 backdrop-blur-md border-t border-slate-200 dark:border-zinc-800 shadow-lg">
+        <div class="max-w-lg mx-auto px-3 h-16 grid grid-cols-3 gap-2 items-center">
+            <button type="button" id="nav-home-btn" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-sm shadow-indigo-500/30 transition cursor-pointer">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/>
+                </svg>
+                <span>Home</span>
+            </button>
+
+            <button type="button" id="nav-people-btn" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span>People</span>
+            </button>
+
+            <button type="button" id="nav-summary-btn" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span>Summary</span>
+            </button>
+        </div>
+    </nav>
 
     <!-- 4. Record Repayment / Payment History Modal -->
     <div id="repay-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
@@ -297,7 +306,7 @@
                     <h3 id="repay-modal-title" class="text-lg font-bold text-slate-900 dark:text-white">Record Repayment</h3>
                     <p id="repay-modal-subtitle" class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5"></p>
                 </div>
-                <button type="button" id="close-repay-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800">
+                <button type="button" id="close-repay-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -314,7 +323,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label for="repay-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300">Payment Amount</label>
-                        <button type="button" id="repay-full-btn" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Pay Full Balance</button>
+                        <button type="button" id="repay-full-btn" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">Pay Full Balance</button>
                     </div>
                     <div class="relative">
                         <span id="repay-currency-prefix" class="absolute inset-y-0 left-3.5 flex items-center text-sm font-bold text-slate-500 dark:text-zinc-400 pointer-events-none">₹</span>
@@ -342,8 +351,8 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 pt-2">
-                    <button type="button" id="cancel-repay-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
-                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition">Save Payment</button>
+                    <button type="button" id="cancel-repay-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition cursor-pointer">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition cursor-pointer">Save Payment</button>
                 </div>
             </form>
         </div>
@@ -357,7 +366,7 @@
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Credit Entry</h3>
                     <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Update borrowed amount, paid balance, or dates</p>
                 </div>
-                <button type="button" id="close-edit-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800">
+                <button type="button" id="close-edit-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -386,14 +395,26 @@
                             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="edit-date-borrowed" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date Borrowed</label>
+                        <input type="date" id="edit-date-borrowed" required
+                            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="edit-due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Pay Back By</label>
+                        <input type="date" id="edit-due-date"
+                            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
                 <div>
                     <label for="edit-reason" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Note / Reason</label>
                     <input type="text" id="edit-reason"
                         class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div class="flex items-center gap-2.5 pt-2">
-                    <button type="button" id="cancel-edit-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
-                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition">Save Changes</button>
+                    <button type="button" id="cancel-edit-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition cursor-pointer">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition cursor-pointer">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -405,8 +426,8 @@
             <h3 id="confirm-title" class="text-base font-bold text-slate-900 dark:text-white">Are you sure?</h3>
             <p id="confirm-message" class="text-sm text-slate-500 dark:text-zinc-400 mt-2">This action cannot be undone.</p>
             <div class="flex items-center gap-2.5 mt-5">
-                <button type="button" id="confirm-cancel-btn" class="flex-1 py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
-                <button type="button" id="confirm-ok-btn" class="flex-1 py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm transition">Confirm</button>
+                <button type="button" id="confirm-cancel-btn" class="flex-1 py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition cursor-pointer">Cancel</button>
+                <button type="button" id="confirm-ok-btn" class="flex-1 py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm transition cursor-pointer">Confirm</button>
             </div>
         </div>
     </div>
@@ -419,7 +440,7 @@
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Friend &amp; Balance</h3>
                     <p id="edit-friend-subtitle" class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Update friend details or adjust credit entry amount</p>
                 </div>
-                <button type="button" id="close-edit-friend-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800">
+                <button type="button" id="close-edit-friend-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -454,8 +475,8 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2.5 pt-2">
-                    <button type="button" id="cancel-edit-friend-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
-                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition">Save Friend</button>
+                    <button type="button" id="cancel-edit-friend-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition cursor-pointer">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition cursor-pointer">Save Friend</button>
                 </div>
             </form>
         </div>
@@ -467,7 +488,7 @@
             'use strict';
 
             // =========================================================================
-            // INLINE PWA MANIFEST SETUP
+            // INLINE PWA MANIFEST & SERVICE WORKER SETUP
             // =========================================================================
             (function injectManifest() {
                 try {
@@ -492,7 +513,6 @@
                         manifestLink.href = URL.createObjectURL(blob);
                     }
 
-                    // Register a lightweight inline Service Worker for offline page caching when served over HTTP/HTTPS
                     if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
                         const swCode = `
                             const CACHE_NAME = 'friendcredit-cache-v1';
@@ -527,26 +547,31 @@
             const BACKUP_META_KEY = 'friendcredit_backup_meta_v1';
 
             let credits = [];
-            let friendsMeta = {}; // { normalizedName: { name, upiId } }
+            let friendsMeta = {};
             let settings = {
                 currency: '₹',
-                theme: 'dark' // Sleek AMOLED dark mode default
+                theme: 'dark'
             };
             let backupMeta = {
                 lastBackupAt: null,
                 dismissedUntil: 0
             };
-
-            let activeTab = 'by-friend'; // 'by-friend' | 'all-entries'
-            let activeStatusFilter = 'all'; // 'all' | 'pending' | 'overdue' | 'settled'
-            let searchQuery = '';
+            let activePage = 'home'; // 'home' | 'people' | 'summary'
             let confirmCallback = null;
 
             // =========================================================================
-            // UTILITY HELPERS
+            // RENDERING: NAVIGATION & VIEWS (HOME, PEOPLE & SUMMARY PAGE)
             // =========================================================================
-            function generateId() {
-                return 'fc_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+            function updateNavBarUI() {
+                const homeBtn = document.getElementById('nav-home-btn');
+                const peopleBtn = document.getElementById('nav-people-btn');
+                const summaryBtn = document.getElementById('nav-summary-btn');
+                const activeClasses = 'flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-sm shadow-indigo-500/30 transition cursor-pointer';
+                const inactiveClasses = 'flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer';
+
+                homeBtn.className = activePage === 'home' ? activeClasses : inactiveClasses;
+                peopleBtn.className = activePage === 'people' ? activeClasses : inactiveClasses;
+                summaryBtn.className = activePage === 'summary' ? activeClasses : inactiveClasses;
             }
 
             function getTodayISO() {
@@ -564,6 +589,10 @@
 
             function roundMoney(num) {
                 return Math.round((Number(num) + Number.EPSILON) * 100) / 100;
+            }
+
+            function generateId() {
+                return 'fc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
             }
 
             function formatMoney(amount) {
@@ -720,7 +749,6 @@
                     if (savedFriends) {
                         friendsMeta = JSON.parse(savedFriends) || {};
                     }
-                    // Backfill friendsMeta from any existing entries with upiId
                     credits.forEach(c => {
                         const key = (c.friendName || '').trim().toLowerCase();
                         if (key && !friendsMeta[key]) {
@@ -887,7 +915,6 @@
                     ? `${overdueCount} overdue entr${overdueCount === 1 ? 'y' : 'ies'}`
                     : 'No overdue dues';
 
-                // Populate Friend Name Datalist & Quick-Pick Chips
                 const sortedFriends = Array.from(allFriendsMap.values()).sort((a, b) => a.localeCompare(b));
                 const datalist = document.getElementById('friends-datalist');
                 datalist.innerHTML = '';
@@ -914,9 +941,9 @@
             }
 
             // =========================================================================
-            // RENDERING: VIEWS (BY FRIEND & ALL ENTRIES)
+            // RENDERING: NAVIGATION & VIEWS (HOME & PEOPLE PAGE)
             // =========================================================================
-            function getStatusBadgeHTML(status, overdue = false, dueSoon = false, dueDateStr = '') {
+            function getStatusBadgeHTML(status, overdue = false, dueSoon = false) {
                 if (status === 'settled') {
                     return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-500/20">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Settled
@@ -942,15 +969,6 @@
                 </span>`;
             }
 
-            function matchesStatusFilter(entry, today) {
-                if (activeStatusFilter === 'all') return true;
-                const status = getEntryStatus(entry);
-                if (activeStatusFilter === 'settled') return status === 'settled';
-                if (activeStatusFilter === 'overdue') return isEntryOverdue(entry, today);
-                if (activeStatusFilter === 'pending') return status !== 'settled';
-                return true;
-            }
-
             function buildUpiDeepLink(upiId, friendName, amount) {
                 const params = new URLSearchParams({
                     pa: upiId.trim(),
@@ -962,30 +980,29 @@
             }
 
             function renderViews() {
+                updateNavBarUI();
+                const summarySection = document.getElementById('summary-page-section');
+                const homeSection = document.getElementById('home-page-section');
+                const peopleSection = document.getElementById('people-page-section');
                 const container = document.getElementById('views-container');
-                const query = searchQuery.trim().toLowerCase();
+                const peopleContainer = document.getElementById('people-page-container');
 
-                if (credits.length === 0) {
-                    container.innerHTML = `
-                        <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-10 text-center border border-slate-200/80 dark:border-zinc-800 shadow-sm">
-                            <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                            </div>
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white">No Credits Recorded Yet</h3>
-                            <p class="text-sm text-slate-500 dark:text-zinc-400 max-w-sm mx-auto mt-1">Log money borrowed from a friend using the form. Everything stays saved offline on your device.</p>
-                        </div>
-                    `;
+                summarySection.classList.toggle('hidden', activePage !== 'summary');
+                homeSection.classList.toggle('hidden', activePage !== 'home');
+                peopleSection.classList.toggle('hidden', activePage !== 'people');
+
+                if (activePage === 'summary') {
                     return;
                 }
 
-                if (activeTab === 'by-friend') {
-                    renderByFriendView(container, query);
+                if (activePage === 'people') {
+                    renderByFriendView(peopleContainer);
                 } else {
-                    renderAllEntriesView(container, query);
+                    container.innerHTML = '';
                 }
             }
 
-            function renderByFriendView(container, query) {
+            function renderByFriendView(container) {
                 const today = getTodayISO();
                 const groupsMap = new Map();
 
@@ -1014,27 +1031,8 @@
                     }
                 });
 
-                let groups = Array.from(groupsMap.values());
+                const groups = Array.from(groupsMap.values());
 
-                // Filter by status filter
-                if (activeStatusFilter === 'pending') {
-                    groups = groups.filter(g => g.totalOwed > 0);
-                } else if (activeStatusFilter === 'overdue') {
-                    groups = groups.filter(g => g.hasOverdue);
-                } else if (activeStatusFilter === 'settled') {
-                    groups = groups.filter(g => g.totalOwed <= 0);
-                }
-
-                // Filter by search query
-                if (query) {
-                    groups = groups.filter(g =>
-                        g.name.toLowerCase().includes(query) ||
-                        (g.upiId || '').toLowerCase().includes(query) ||
-                        g.entries.some(e => (e.reason || '').toLowerCase().includes(query))
-                    );
-                }
-
-                // Sort: overdue first, then highest owed balance, then alphabetically
                 groups.sort((a, b) => {
                     if (a.hasOverdue !== b.hasOverdue) return a.hasOverdue ? -1 : 1;
                     if (b.totalOwed !== a.totalOwed) return b.totalOwed - a.totalOwed;
@@ -1044,7 +1042,7 @@
                 if (groups.length === 0) {
                     container.innerHTML = `
                         <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-8 text-center border border-slate-200/80 dark:border-zinc-800">
-                            <p class="text-sm font-medium text-slate-500 dark:text-zinc-400">No friends match your current search or filter.</p>
+                            <p class="text-sm font-medium text-slate-500 dark:text-zinc-400">No friends added yet.</p>
                         </div>
                     `;
                     return;
@@ -1062,7 +1060,6 @@
 
                     return `
                     <article class="bg-white dark:bg-zinc-900/90 rounded-2xl border ${group.hasOverdue ? 'border-rose-300 dark:border-rose-500/40' : 'border-slate-200/80 dark:border-zinc-800'} shadow-sm overflow-hidden transition">
-                        <!-- Friend Card Header -->
                         <div class="p-4 sm:p-5">
                             <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                                 <div class="flex items-start gap-3">
@@ -1095,7 +1092,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Owed Amount -->
                                 <div class="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 dark:border-zinc-800">
                                     <div class="text-left sm:text-right">
                                         <span class="text-[11px] font-medium text-slate-400 dark:text-zinc-500 block">Remaining Owed</span>
@@ -1109,16 +1105,14 @@
                                 </div>
                             </div>
 
-                            <!-- Progress Bar -->
                             <div class="mt-3.5">
                                 <div class="w-full h-1.5 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                     <div class="h-full ${isAllSettled ? 'bg-emerald-500' : 'bg-indigo-500'} rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
                                 </div>
                             </div>
 
-                            <!-- Friend-level Quick Action Buttons -->
-                            ${!isAllSettled ? `
                             <div class="mt-4 flex flex-wrap items-center gap-2">
+                                ${!isAllSettled ? `
                                 ${group.upiId ? `
                                 <a href="${escapeHTML(upiHref)}"
                                     class="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition">
@@ -1141,7 +1135,6 @@
                             </div>
                         </div>
 
-                        <!-- Breakdown of Individual Entries -->
                         <div class="bg-slate-50/70 dark:bg-zinc-950/70 border-t border-slate-100 dark:border-zinc-800/80 divide-y divide-slate-100 dark:divide-zinc-800/80">
                             ${sortedEntries.map(entry => {
                                 const status = getEntryStatus(entry);
@@ -1155,7 +1148,7 @@
                                     <div class="space-y-0.5">
                                         <div class="flex flex-wrap items-center gap-2">
                                             <span class="font-semibold text-slate-800 dark:text-zinc-200">${escapeHTML(entry.reason || 'Personal Credit')}</span>
-                                            ${getStatusBadgeHTML(status, overdue, dueSoon, entry.dueDate)}
+                                            ${getStatusBadgeHTML(status, overdue, dueSoon)}
                                         </div>
                                         <div class="text-slate-500 dark:text-zinc-400 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                                             <span>Borrowed ${formatDateDisplay(entry.dateBorrowed)}</span>
@@ -1200,33 +1193,18 @@
                 }).join('');
             }
 
-            function renderAllEntriesView(container, query) {
+            function renderAllEntriesView(container) {
                 const today = getTodayISO();
-                let filtered = credits.filter(entry => {
-                    if (!matchesStatusFilter(entry, today)) return false;
-                    if (query) {
-                        const matchName = (entry.friendName || '').toLowerCase().includes(query);
-                        const matchReason = (entry.reason || '').toLowerCase().includes(query);
-                        const matchUpi = (getFriendUpi(entry.friendName) || '').toLowerCase().includes(query);
-                        if (!matchName && !matchReason && !matchUpi) return false;
-                    }
-                    return true;
-                });
+                const sorted = [...credits].sort((a, b) => b.dateBorrowed.localeCompare(a.dateBorrowed));
 
-                filtered.sort((a, b) => b.dateBorrowed.localeCompare(a.dateBorrowed));
-
-                if (filtered.length === 0) {
-                    container.innerHTML = `
-                        <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-8 text-center border border-slate-200/80 dark:border-zinc-800">
-                            <p class="text-sm font-medium text-slate-500 dark:text-zinc-400">No credit entries match your current filter.</p>
-                        </div>
-                    `;
+                if (sorted.length === 0) {
+                    container.innerHTML = '';
                     return;
                 }
 
                 container.innerHTML = `
                     <div class="space-y-3">
-                        ${filtered.map(entry => {
+                        ${sorted.map(entry => {
                             const status = getEntryStatus(entry);
                             const paid = getEntryPaidAmount(entry);
                             const rem = getEntryRemaining(entry);
@@ -1239,7 +1217,7 @@
                                 <div class="space-y-1.5">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">${escapeHTML(entry.friendName)}</span>
-                                        ${getStatusBadgeHTML(status, overdue, dueSoon, entry.dueDate)}
+                                        ${getStatusBadgeHTML(status, overdue, dueSoon)}
                                     </div>
                                     <p class="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 font-medium">
                                         ${escapeHTML(entry.reason || 'Personal Credit')}
@@ -1346,7 +1324,6 @@
                 saveCredits();
                 renderAll();
 
-                // Reset fields except dateBorrowed
                 amountInput.value = '';
                 dueDateInput.value = '';
                 reasonInput.value = '';
@@ -1879,18 +1856,6 @@
             // =========================================================================
             // EVENT LISTENERS & INITIALIZATION
             // =========================================================================
-            function setActiveFilterPill(filterVal) {
-                activeStatusFilter = filterVal;
-                document.querySelectorAll('.filter-pill').forEach(b => {
-                    if (b.dataset.filter === activeStatusFilter) {
-                        b.className = 'filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white transition cursor-pointer';
-                    } else {
-                        b.className = 'filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer';
-                    }
-                });
-                renderViews();
-            }
-
             function initEventListeners() {
                 document.getElementById('date-borrowed').value = getTodayISO();
 
@@ -1917,26 +1882,12 @@
                     document.getElementById('credit-amount').focus();
                 });
 
-                // Overdue summary card quick filter
-                document.getElementById('stat-overdue-card').addEventListener('click', () => {
-                    setActiveFilterPill(activeStatusFilter === 'overdue' ? 'all' : 'overdue');
-                });
-
-                // Backup reminder banner controls
-                document.getElementById('banner-export-btn').addEventListener('click', exportJSON);
-                document.getElementById('banner-dismiss-btn').addEventListener('click', () => {
-                    backupMeta.dismissedUntil = Date.now() + (3 * 24 * 60 * 60 * 1000);
-                    saveBackupMeta();
-                    updateBackupReminderUI();
-                });
-
-                // Currency Switcher
+                // Currency Selector
                 document.getElementById('currency-select').addEventListener('change', (e) => {
                     settings.currency = e.target.value;
                     saveSettings();
                     applyCurrencyUI();
                     renderAll();
-                    showToast(`Currency switched to ${settings.currency}`, 'info');
                 });
 
                 // Theme Toggle
@@ -1946,10 +1897,10 @@
                     applyTheme();
                 });
 
-                // Backup Dropdown Toggle
-                const backupBtn = document.getElementById('backup-menu-btn');
+                // Backup Menu & Export/Import Actions
                 const backupMenu = document.getElementById('backup-menu');
-                backupBtn.addEventListener('click', (e) => {
+                const backupMenuBtn = document.getElementById('backup-menu-btn');
+                backupMenuBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     backupMenu.classList.toggle('hidden');
                 });
@@ -1958,7 +1909,6 @@
                         backupMenu.classList.add('hidden');
                     }
                 });
-
                 document.getElementById('export-json-btn').addEventListener('click', () => {
                     backupMenu.classList.add('hidden');
                     exportJSON();
@@ -1975,40 +1925,41 @@
                     backupMenu.classList.add('hidden');
                     handleImportJSON(e);
                 });
+                document.getElementById('banner-export-btn').addEventListener('click', exportJSON);
+                document.getElementById('banner-dismiss-btn').addEventListener('click', () => {
+                    backupMeta.dismissedUntil = Date.now() + (3 * 24 * 60 * 60 * 1000);
+                    saveBackupMeta();
+                    updateBackupReminderUI();
+                });
 
-                // Tabs Switching
-                const tabByFriend = document.getElementById('tab-by-friend');
-                const tabAllEntries = document.getElementById('tab-all-entries');
-
-                tabByFriend.addEventListener('click', () => {
-                    activeTab = 'by-friend';
-                    tabByFriend.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm';
-                    tabAllEntries.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white';
+                // Overdue summary card navigates to Home
+                document.getElementById('stat-overdue-card').addEventListener('click', () => {
+                    activePage = 'home';
                     renderViews();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
 
-                tabAllEntries.addEventListener('click', () => {
-                    activeTab = 'all-entries';
-                    tabAllEntries.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm';
-                    tabByFriend.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white';
+                // Bottom Navigation Bar (Home, People & Summary)
+                document.getElementById('nav-home-btn').addEventListener('click', () => {
+                    activePage = 'home';
                     renderViews();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
 
-                // Search Input
-                document.getElementById('search-input').addEventListener('input', (e) => {
-                    searchQuery = e.target.value;
+                document.getElementById('nav-people-btn').addEventListener('click', () => {
+                    activePage = 'people';
                     renderViews();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
 
-                // Status Filter Pills
-                document.querySelectorAll('.filter-pill').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        setActiveFilterPill(btn.dataset.filter);
-                    });
+                document.getElementById('nav-summary-btn').addEventListener('click', () => {
+                    activePage = 'summary';
+                    renderViews();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
 
-                // Event Delegation for Dynamic Action Buttons inside Views Container
-                document.getElementById('views-container').addEventListener('click', (e) => {
+                // Event Delegation for Dynamic Action Buttons inside Home & People Containers
+                const handleViewActionClick = (e) => {
                     const btn = e.target.closest('[data-action]');
                     if (!btn) return;
                     const action = btn.dataset.action;
@@ -2030,7 +1981,10 @@
                     } else if (action === 'delete-entry') {
                         deleteEntry(btn.dataset.id);
                     }
-                });
+                };
+
+                document.getElementById('views-container').addEventListener('click', handleViewActionClick);
+                document.getElementById('people-page-container').addEventListener('click', handleViewActionClick);
 
                 // Repay Modal Controls
                 document.getElementById('repay-form').addEventListener('submit', handleRepaySubmit);
