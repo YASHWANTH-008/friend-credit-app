@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FriendCredit — Personal Credit & IOU Tracker</title>
+    <!-- Mobile-First PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FriendCredit">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <link rel="manifest" id="pwa-manifest">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        amoled: '#000000',
+                        surface: '#0a0a0c',
+                        card: '#121216',
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container (Replaces alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-30 bg-white/85 dark:bg-black/85 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800/90">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm shadow-indigo-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/>
+                        <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight leading-none text-slate-900 dark:text-white">FriendCredit</h1>
+                    <p class="text-[11px] font-medium text-slate-500 dark:text-zinc-400 mt-0.5 hidden sm:block">Personal IOU &amp; Borrowed Money Tracker</p>
+                </div>
+            </div>
+
+            <!-- Right Controls: Currency, Backup Menu, Theme Toggle -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Currency Selector -->
+                <div class="relative">
+                    <label for="currency-select" class="sr-only">Select Currency</label>
+                    <select id="currency-select" title="Currency Symbol" class="appearance-none bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl pl-3 pr-7 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="₹">₹ INR</option>
+                        <option value="$">$ USD</option>
+                        <option value="€">€ EUR</option>
+                        <option value="£">£ GBP</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-500">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </div>
+                </div>
+
+                <!-- Backup / Export Dropdown -->
+                <div class="relative" id="backup-dropdown-wrapper">
+                    <button id="backup-menu-btn" type="button" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 text-sm font-medium px-3 py-2 rounded-xl transition">
+                        <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span class="hidden sm:inline">Backup</span>
+                    </button>
+                    <!-- Dropdown Panel -->
+                    <div id="backup-menu" class="hidden absolute right-0 mt-2 w-60 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-800 py-1.5 z-40">
+                        <div class="px-3.5 py-1.5 flex items-center justify-between">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Data Safety</span>
+                            <span id="last-backup-label" class="text-[10px] text-zinc-500">Never backed up</span>
+                        </div>
+                        <button id="export-json-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5">
+                            <span class="text-indigo-500 font-bold">{}</span> Export JSON Backup
+                        </button>
+                        <button id="copy-backup-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5">
+                            <span class="text-sky-400 font-bold">⎘</span> Copy Backup Text
+                        </button>
+                        <button id="export-csv-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5">
+                            <span class="text-emerald-500 font-bold">⊞</span> Export CSV Spreadsheet
+                        </button>
+                        <div class="my-1 border-t border-slate-100 dark:border-zinc-800"></div>
+                        <label for="import-json-input" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5 cursor-pointer">
+                            <span class="text-amber-500 font-bold">↑</span> Import JSON Backup
+                        </label>
+                        <input id="import-json-input" type="file" accept=".json,application/json" class="hidden">
+                    </div>
+                </div>
+
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" type="button" aria-label="Toggle Dark Mode" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 transition">
+                    <!-- Sun Icon (shown in dark mode) -->
+                    <svg id="icon-sun" class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <!-- Moon Icon (shown in light mode) -->
+                    <svg id="icon-moon" class="w-5 h-5 block dark:hidden text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-7 space-y-5">
+
+        <!-- Automatic Data Safety / Backup Reminder Banner -->
+        <div id="backup-reminder-banner" class="hidden rounded-2xl p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-start sm:items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200">Keep your IOU records safe!</h2>
+                    <p id="backup-reminder-text" class="text-xs text-amber-800/90 dark:text-amber-300/80 mt-0.5">Your data is stored locally in this browser. Export a quick backup so you never lose it.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                <button id="banner-export-btn" type="button" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer">
+                    Backup Now
+                </button>
+                <button id="banner-dismiss-btn" type="button" title="Dismiss reminder for 3 days" class="p-2 rounded-xl text-amber-700 dark:text-amber-300 hover:bg-amber-200/50 dark:hover:bg-amber-800/40 transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 1. Dashboard Summary Cards (4 Cards) -->
+        <section aria-label="Summary Overview" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <!-- Total You Owe -->
+            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Total You Owe</span>
+                    <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <div id="stat-outstanding" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">₹0</div>
+                <p id="stat-outstanding-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Pending dues to friends</p>
+            </div>
+
+            <!-- Total Repaid -->
+            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Total Repaid</span>
+                    <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <div id="stat-repaid" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">₹0</div>
+                <p id="stat-repaid-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Out of ₹0 borrowed</p>
+            </div>
+
+            <!-- Friends Owed -->
+            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Friends Owed</span>
+                    <span class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </span>
+                </div>
+                <div id="stat-friends-count" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">0</div>
+                <p id="stat-friends-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Active lenders</p>
+            </div>
+
+            <!-- Overdue Count / Amount -->
+            <div id="stat-overdue-card" class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm cursor-pointer hover:border-rose-500/50 transition" title="Click to filter overdue items">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Overdue</span>
+                    <span class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <div id="stat-overdue-amount" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400">₹0</div>
+                <p id="stat-overdue-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">0 overdue entries</p>
+            </div>
+        </section>
+
+        <!-- Main Workspace Grid: Left Form + Right List Views -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- 2. Quick Credit Entry Form (Left Column on Desktop) -->
+            <section class="lg:col-span-4 bg-white dark:bg-zinc-900/90 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm lg:sticky lg:top-24">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Add Borrowed Credit</h2>
+                        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Log money taken from a friend</p>
+                    </div>
+                </div>
+
+                <form id="add-credit-form" class="space-y-4">
+                    <div>
+                        <label for="friend-name" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Friend's Name</label>
+                        <input type="text" id="friend-name" list="friends-datalist" placeholder="e.g. Rahul" required
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <datalist id="friends-datalist"></datalist>
+                        <div id="quick-friend-chips" class="hidden flex-wrap gap-1.5 mt-2"></div>
+                    </div>
+
+                    <div>
+                        <label for="friend-upi" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">UPI ID / Phone <span class="font-normal text-slate-400 dark:text-zinc-500">(Optional)</span></label>
+                        <input type="text" id="friend-upi" placeholder="e.g. rahul@okaxis or 9876543210"
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div>
+                        <label for="credit-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Amount Borrowed</label>
+                        <div class="relative">
+                            <span id="form-currency-prefix" class="absolute inset-y-0 left-3.5 flex items-center text-sm font-bold text-slate-500 dark:text-zinc-400 pointer-events-none">₹</span>
+                            <input type="number" id="credit-amount" step="0.01" min="0.01" placeholder="0.00" required
+                                class="w-full pl-8 pr-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="date-borrowed" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date Borrowed</label>
+                            <input type="date" id="date-borrowed" required
+                                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Pay Back By</label>
+                            <input type="date" id="due-date"
+                                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="credit-reason" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Note / Reason <span class="font-normal text-slate-400 dark:text-zinc-500">(Optional)</span></label>
+                        <input type="text" id="credit-reason" placeholder="e.g. Dinner, Cab, Movie tickets"
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm shadow-indigo-500/25 transition cursor-pointer">
+                        Save Credit
+                    </button>
+                </form>
+            </section>
+
+            <!-- 3. Right Column: View Tabs, Search, Filters & Records -->
+            <section class="lg:col-span-8 space-y-4">
+                <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 border border-slate-200/80 dark:border-zinc-800 shadow-sm space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-zinc-950 border border-slate-200/70 dark:border-zinc-800 self-start">
+                            <button type="button" id="tab-by-friend" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm">
+                                By Friend
+                            </button>
+                            <button type="button" id="tab-all-entries" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+                                All Entries
+                            </button>
+                        </div>
+
+                        <div class="relative flex-1 sm:max-w-xs">
+                            <input type="search" id="search-input" placeholder="Search friend, UPI, or note..."
+                                class="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                        <button type="button" data-filter="all" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white transition cursor-pointer">All</button>
+                        <button type="button" data-filter="pending" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer">Pending</button>
+                        <button type="button" data-filter="overdue" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer">Overdue</button>
+                        <button type="button" data-filter="settled" class="filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer">Settled</button>
+                    </div>
+                </div>
+
+                <div id="views-container" class="space-y-4"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 4. Record Repayment / Payment History Modal -->
+    <div id="repay-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-zinc-800 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 id="repay-modal-title" class="text-lg font-bold text-slate-900 dark:text-white">Record Repayment</h3>
+                    <p id="repay-modal-subtitle" class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5"></p>
+                </div>
+                <button type="button" id="close-repay-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="mb-4 p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200/70 dark:border-zinc-800 flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-500 dark:text-zinc-400">Remaining Balance</span>
+                <span id="repay-remaining-display" class="text-base font-extrabold text-slate-900 dark:text-white">₹0</span>
+            </div>
+
+            <form id="repay-form" class="space-y-4">
+                <input type="hidden" id="repay-mode">
+                <input type="hidden" id="repay-target-id">
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="repay-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300">Payment Amount</label>
+                        <button type="button" id="repay-full-btn" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Pay Full Balance</button>
+                    </div>
+                    <div class="relative">
+                        <span id="repay-currency-prefix" class="absolute inset-y-0 left-3.5 flex items-center text-sm font-bold text-slate-500 dark:text-zinc-400 pointer-events-none">₹</span>
+                        <input type="number" id="repay-amount" step="0.01" min="0.01" placeholder="0.00"
+                            class="w-full pl-8 pr-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="repay-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Payment Date</label>
+                        <input type="date" id="repay-date" required
+                            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="repay-note" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Note (Optional)</label>
+                        <input type="text" id="repay-note" placeholder="e.g. UPI / Cash"
+                            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div id="repay-history-section" class="hidden pt-2 border-t border-slate-100 dark:border-zinc-800">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">Previous Payments</p>
+                    <ul id="repay-history-list" class="space-y-1.5 max-h-32 overflow-y-auto text-xs"></ul>
+                </div>
+
+                <div class="flex items-center gap-2.5 pt-2">
+                    <button type="button" id="cancel-repay-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition">Save Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. Edit Credit Entry Modal -->
+    <div id="edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-zinc-800 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Credit Entry</h3>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Update borrowed amount, paid balance, or dates</p>
+                </div>
+                <button type="button" id="close-edit-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form id="edit-form" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label for="edit-friend-name" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Friend's Name</label>
+                    <input type="text" id="edit-friend-name" required
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="edit-friend-upi" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">UPI ID / Phone</label>
+                    <input type="text" id="edit-friend-upi" placeholder="e.g. rahul@okaxis"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="edit-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Total Borrowed Amount</label>
+                        <input type="number" id="edit-amount" step="0.01" min="0.01" required
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="edit-paid-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Already Paid Amount</label>
+                        <input type="number" id="edit-paid-amount" step="0.01" min="0" required
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label for="edit-reason" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Note / Reason</label>
+                    <input type="text" id="edit-reason"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex items-center gap-2.5 pt-2">
+                    <button type="button" id="cancel-edit-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. Custom Confirmation Modal (Replaces window.confirm) -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-sm w-full p-6 border border-slate-200 dark:border-zinc-800 shadow-2xl">
+            <h3 id="confirm-title" class="text-base font-bold text-slate-900 dark:text-white">Are you sure?</h3>
+            <p id="confirm-message" class="text-sm text-slate-500 dark:text-zinc-400 mt-2">This action cannot be undone.</p>
+            <div class="flex items-center gap-2.5 mt-5">
+                <button type="button" id="confirm-cancel-btn" class="flex-1 py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
+                <button type="button" id="confirm-ok-btn" class="flex-1 py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Edit Friend Card Modal -->
+    <div id="edit-friend-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-zinc-800 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Friend &amp; Balance</h3>
+                    <p id="edit-friend-subtitle" class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Update friend details or adjust credit entry amount</p>
+                </div>
+                <button type="button" id="close-edit-friend-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="edit-friend-form" class="space-y-4">
+                <input type="hidden" id="edit-friend-old-key">
+                <div>
+                    <label for="edit-friend-card-name" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Friend's Name</label>
+                    <input type="text" id="edit-friend-card-name" required
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="edit-friend-card-upi" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">UPI ID / Phone</label>
+                    <input type="text" id="edit-friend-card-upi" placeholder="e.g. rahul@okaxis"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="pt-2 border-t border-slate-100 dark:border-zinc-800">
+                    <label for="edit-friend-entry-select" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Select Credit Entry to Update Amount</label>
+                    <select id="edit-friend-entry-select"
+                        class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="edit-friend-entry-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Borrowed Amount</label>
+                        <input type="number" id="edit-friend-entry-amount" step="0.01" min="0.01" required
+                            class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="edit-friend-entry-paid" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Paid Amount</label>
+                        <input type="number" id="edit-friend-entry-paid" step="0.01" min="0" required
+                            class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2.5 pt-2">
+                    <button type="button" id="cancel-edit-friend-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-semibold text-sm transition">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition">Save Friend</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        (function () {
+            'use strict';
+
+            // =========================================================================
+            // INLINE PWA MANIFEST SETUP
+            // =========================================================================
+            (function injectManifest() {
+                try {
+                    const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#4f46e5"/><path d="M368 176v-48a24 24 0 0 0-24-24H144a40 40 0 0 0 0 80h240a24 24 0 0 1 24 24v64h-56a40 40 0 0 0 0 80h56a24 24 0 0 0 24-24v-40a24 24 0 0 0-24-24" fill="none" stroke="#ffffff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/><path d="M104 144v224a40 40 0 0 0 40 40h240a24 24 0 0 0 24-24v-64" fill="none" stroke="#ffffff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                    const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
+                    const manifest = {
+                        name: 'FriendCredit — Personal Credit & IOU Tracker',
+                        short_name: 'FriendCredit',
+                        start_url: '.',
+                        display: 'standalone',
+                        background_color: '#000000',
+                        theme_color: '#000000',
+                        description: 'Track money borrowed from friends offline with UPI quick-pay and backups.',
+                        icons: [
+                            { src: iconUrl, sizes: '192x192', type: 'image/svg+xml' },
+                            { src: iconUrl, sizes: '512x512', type: 'image/svg+xml' }
+                        ]
+                    };
+                    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                    const manifestLink = document.getElementById('pwa-manifest');
+                    if (manifestLink) {
+                        manifestLink.href = URL.createObjectURL(blob);
+                    }
+
+                    // Register a lightweight inline Service Worker for offline page caching when served over HTTP/HTTPS
+                    if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                        const swCode = `
+                            const CACHE_NAME = 'friendcredit-cache-v1';
+                            self.addEventListener('install', event => {
+                                event.waitUntil(
+                                    caches.open(CACHE_NAME).then(cache => cache.addAll([self.registration.scope]))
+                                );
+                                self.skipWaiting();
+                            });
+                            self.addEventListener('fetch', event => {
+                                if (event.request.method !== 'GET') return;
+                                event.respondWith(
+                                    caches.match(event.request).then(cached => cached || fetch(event.request).catch(() => cached))
+                                );
+                            });
+                        `;
+                        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                        const swUrl = URL.createObjectURL(swBlob);
+                        navigator.serviceWorker.register(swUrl).catch(() => {});
+                    }
+                } catch (e) {
+                    // Ignore manifest or service worker error on restricted contexts
+                }
+            })();
+
+            // =========================================================================
+            // STATE & STORAGE KEYS
+            // =========================================================================
+            const STORAGE_KEY = 'friendcredit_entries_v1';
+            const SETTINGS_KEY = 'friendcredit_settings_v1';
+            const FRIENDS_META_KEY = 'friendcredit_friends_meta_v1';
+            const BACKUP_META_KEY = 'friendcredit_backup_meta_v1';
+
+            let credits = [];
+            let friendsMeta = {}; // { normalizedName: { name, upiId } }
+            let settings = {
+                currency: '₹',
+                theme: 'dark' // Sleek AMOLED dark mode default
+            };
+            let backupMeta = {
+                lastBackupAt: null,
+                dismissedUntil: 0
+            };
+
+            let activeTab = 'by-friend'; // 'by-friend' | 'all-entries'
+            let activeStatusFilter = 'all'; // 'all' | 'pending' | 'overdue' | 'settled'
+            let searchQuery = '';
+            let confirmCallback = null;
+
+            // =========================================================================
+            // UTILITY HELPERS
+            // =========================================================================
+            function generateId() {
+                return 'fc_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+            }
+
+            function getTodayISO() {
+                const now = new Date();
+                const offset = now.getTimezoneOffset();
+                const local = new Date(now.getTime() - (offset * 60 * 1000));
+                return local.toISOString().split('T')[0];
+            }
+
+            function getDaysBetween(isoA, isoB) {
+                const a = new Date(isoA + 'T00:00:00');
+                const b = new Date(isoB + 'T00:00:00');
+                return Math.round((b - a) / (1000 * 60 * 60 * 24));
+            }
+
+            function roundMoney(num) {
+                return Math.round((Number(num) + Number.EPSILON) * 100) / 100;
+            }
+
+            function formatMoney(amount) {
+                const val = roundMoney(amount || 0);
+                const formatted = Number.isInteger(val)
+                    ? val.toLocaleString('en-IN')
+                    : val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                return `${settings.currency}${formatted}`;
+            }
+
+            function formatDateDisplay(isoDate) {
+                if (!isoDate) return '';
+                const parts = isoDate.split('-');
+                if (parts.length !== 3) return isoDate;
+                const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            function escapeHTML(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function copyToClipboard(text, successMsg) {
+                if (!text) return;
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast(successMsg || 'Copied to clipboard!');
+                } catch (err) {
+                    showToast('Could not copy automatically.', 'error');
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            }
+
+            function getEntryPaidAmount(entry) {
+                if (!Array.isArray(entry.payments)) return 0;
+                return roundMoney(entry.payments.reduce((sum, p) => sum + Number(p.amount || 0), 0));
+            }
+
+            function getEntryRemaining(entry) {
+                const rem = roundMoney(Number(entry.amount) - getEntryPaidAmount(entry));
+                return rem > 0 ? rem : 0;
+            }
+
+            function getEntryStatus(entry) {
+                const paid = getEntryPaidAmount(entry);
+                const total = roundMoney(entry.amount);
+                if (paid >= total && total > 0) return 'settled';
+                if (paid > 0) return 'partial';
+                return 'pending';
+            }
+
+            function isEntryOverdue(entry, today = getTodayISO()) {
+                return getEntryStatus(entry) !== 'settled' && Boolean(entry.dueDate) && entry.dueDate < today;
+            }
+
+            function isEntryDueSoon(entry, today = getTodayISO()) {
+                if (getEntryStatus(entry) === 'settled' || !entry.dueDate || entry.dueDate < today) return false;
+                const diff = getDaysBetween(today, entry.dueDate);
+                return diff >= 0 && diff <= 3;
+            }
+
+            function getFriendUpi(friendName) {
+                const key = (friendName || '').trim().toLowerCase();
+                if (!key) return '';
+                if (friendsMeta[key] && friendsMeta[key].upiId) {
+                    return friendsMeta[key].upiId;
+                }
+                const match = credits.find(c => c.friendName.trim().toLowerCase() === key && c.upiId);
+                return match ? match.upiId : '';
+            }
+
+            function setFriendMeta(friendName, upiId) {
+                const cleanName = (friendName || '').trim();
+                const key = cleanName.toLowerCase();
+                if (!key) return;
+                const existing = friendsMeta[key] || { name: cleanName, upiId: '' };
+                friendsMeta[key] = {
+                    name: cleanName,
+                    upiId: upiId !== undefined ? upiId.trim() : existing.upiId
+                };
+                saveFriendsMeta();
+            }
+
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                const bgClass = type === 'error'
+                    ? 'bg-rose-600 text-white'
+                    : type === 'info'
+                        ? 'bg-zinc-800 text-white border border-zinc-700'
+                        : 'bg-emerald-600 text-white';
+
+                toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2.5 transform transition-all duration-300 translate-y-2 opacity-0 ${bgClass}`;
+                toast.innerHTML = `<span>${escapeHTML(message)}</span>`;
+                container.appendChild(toast);
+
+                requestAnimationFrame(() => {
+                    toast.classList.remove('translate-y-2', 'opacity-0');
+                });
+
+                setTimeout(() => {
+                    toast.classList.add('translate-y-2', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            function openConfirmModal(title, message, okLabel, onConfirm) {
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-message').textContent = message;
+                const okBtn = document.getElementById('confirm-ok-btn');
+                okBtn.textContent = okLabel || 'Confirm';
+                confirmCallback = onConfirm;
+                const modal = document.getElementById('confirm-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function closeConfirmModal() {
+                const modal = document.getElementById('confirm-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                confirmCallback = null;
+            }
+
+            // =========================================================================
+            // PERSISTENCE (localStorage)
+            // =========================================================================
+            function loadState() {
+                try {
+                    const savedSettings = localStorage.getItem(SETTINGS_KEY);
+                    if (savedSettings) {
+                        settings = { ...settings, ...JSON.parse(savedSettings) };
+                    }
+
+                    const savedCredits = localStorage.getItem(STORAGE_KEY);
+                    if (savedCredits) {
+                        const parsed = JSON.parse(savedCredits);
+                        if (Array.isArray(parsed)) {
+                            credits = parsed;
+                        }
+                    }
+
+                    const savedFriends = localStorage.getItem(FRIENDS_META_KEY);
+                    if (savedFriends) {
+                        friendsMeta = JSON.parse(savedFriends) || {};
+                    }
+                    // Backfill friendsMeta from any existing entries with upiId
+                    credits.forEach(c => {
+                        const key = (c.friendName || '').trim().toLowerCase();
+                        if (key && !friendsMeta[key]) {
+                            friendsMeta[key] = { name: c.friendName.trim(), upiId: c.upiId || '' };
+                        } else if (key && c.upiId && !friendsMeta[key].upiId) {
+                            friendsMeta[key].upiId = c.upiId;
+                        }
+                    });
+
+                    const savedBackup = localStorage.getItem(BACKUP_META_KEY);
+                    if (savedBackup) {
+                        backupMeta = { ...backupMeta, ...JSON.parse(savedBackup) };
+                    }
+                } catch (err) {
+                    console.error('Failed to load state from localStorage:', err);
+                }
+            }
+
+            function saveCredits() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(credits));
+                } catch (err) {
+                    console.error('Failed to save credits:', err);
+                    showToast('Storage error: Could not save data locally.', 'error');
+                }
+            }
+
+            function saveFriendsMeta() {
+                try {
+                    localStorage.setItem(FRIENDS_META_KEY, JSON.stringify(friendsMeta));
+                } catch (err) {
+                    console.error('Failed to save friends metadata:', err);
+                }
+            }
+
+            function saveSettings() {
+                try {
+                    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+                } catch (err) {
+                    console.error('Failed to save settings:', err);
+                }
+            }
+
+            function saveBackupMeta() {
+                try {
+                    localStorage.setItem(BACKUP_META_KEY, JSON.stringify(backupMeta));
+                } catch (err) {
+                    console.error('Failed to save backup metadata:', err);
+                }
+            }
+
+            // =========================================================================
+            // THEME, CURRENCY & BACKUP REMINDER LOGIC
+            // =========================================================================
+            function applyTheme() {
+                const html = document.documentElement;
+                const themeMeta = document.querySelector('meta[name="theme-color"]');
+                if (settings.theme === 'dark') {
+                    html.classList.add('dark');
+                    if (themeMeta) themeMeta.setAttribute('content', '#000000');
+                } else {
+                    html.classList.remove('dark');
+                    if (themeMeta) themeMeta.setAttribute('content', '#f8fafc');
+                }
+            }
+
+            function applyCurrencyUI() {
+                const currencySelect = document.getElementById('currency-select');
+                const formPrefix = document.getElementById('form-currency-prefix');
+                const repayPrefix = document.getElementById('repay-currency-prefix');
+
+                if (currencySelect) currencySelect.value = settings.currency;
+                if (formPrefix) formPrefix.textContent = settings.currency;
+                if (repayPrefix) repayPrefix.textContent = settings.currency;
+            }
+
+            function updateBackupReminderUI() {
+                const banner = document.getElementById('backup-reminder-banner');
+                const textEl = document.getElementById('backup-reminder-text');
+                const lastLabel = document.getElementById('last-backup-label');
+
+                if (backupMeta.lastBackupAt) {
+                    const daysAgo = Math.floor((Date.now() - backupMeta.lastBackupAt) / (1000 * 60 * 60 * 24));
+                    lastLabel.textContent = daysAgo === 0 ? 'Backed up today' : `${daysAgo}d ago`;
+                } else {
+                    lastLabel.textContent = 'Never backed up';
+                }
+
+                if (credits.length === 0) {
+                    banner.classList.add('hidden');
+                    return;
+                }
+
+                const now = Date.now();
+                if (backupMeta.dismissedUntil && now < backupMeta.dismissedUntil) {
+                    banner.classList.add('hidden');
+                    return;
+                }
+
+                const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
+                if (!backupMeta.lastBackupAt) {
+                    textEl.textContent = `You have ${credits.length} IOU record${credits.length === 1 ? '' : 's'} stored only in this browser and haven't exported a backup yet.`;
+                    banner.classList.remove('hidden');
+                } else if (now - backupMeta.lastBackupAt > FOURTEEN_DAYS_MS) {
+                    const daysAgo = Math.floor((now - backupMeta.lastBackupAt) / (1000 * 60 * 60 * 24));
+                    textEl.textContent = `It has been ${daysAgo} days since your last JSON backup. Export a fresh copy to stay protected.`;
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+
+            // =========================================================================
+            // RENDERING: SUMMARY CARDS, AUTOCOMPLETE & QUICK-PICK CHIPS
+            // =========================================================================
+            function renderSummaryAndDatalist() {
+                let totalBorrowed = 0;
+                let totalRepaid = 0;
+                let overdueAmount = 0;
+                let overdueCount = 0;
+                const activeFriendsSet = new Set();
+                const allFriendsMap = new Map();
+                const today = getTodayISO();
+
+                credits.forEach(entry => {
+                    const amt = roundMoney(entry.amount);
+                    const paid = getEntryPaidAmount(entry);
+                    const rem = getEntryRemaining(entry);
+                    const cleanName = (entry.friendName || '').trim();
+
+                    totalBorrowed = roundMoney(totalBorrowed + amt);
+                    totalRepaid = roundMoney(totalRepaid + paid);
+
+                    if (isEntryOverdue(entry, today)) {
+                        overdueCount += 1;
+                        overdueAmount = roundMoney(overdueAmount + rem);
+                    }
+
+                    if (cleanName) {
+                        allFriendsMap.set(cleanName.toLowerCase(), cleanName);
+                        if (rem > 0) {
+                            activeFriendsSet.add(cleanName.toLowerCase());
+                        }
+                    }
+                });
+
+                const outstanding = roundMoney(totalBorrowed - totalRepaid);
+
+                document.getElementById('stat-outstanding').textContent = formatMoney(outstanding);
+                document.getElementById('stat-outstanding-sub').textContent = outstanding > 0
+                    ? `Across ${activeFriendsSet.size} friend${activeFriendsSet.size === 1 ? '' : 's'}`
+                    : 'Zero pending dues';
+
+                document.getElementById('stat-repaid').textContent = formatMoney(totalRepaid);
+                document.getElementById('stat-repaid-sub').textContent = `Out of ${formatMoney(totalBorrowed)} borrowed`;
+
+                document.getElementById('stat-friends-count').textContent = activeFriendsSet.size;
+                document.getElementById('stat-friends-sub').textContent = allFriendsMap.size > 0
+                    ? `${allFriendsMap.size} total friend${allFriendsMap.size === 1 ? '' : 's'}`
+                    : 'Add first credit';
+
+                document.getElementById('stat-overdue-amount').textContent = formatMoney(overdueAmount);
+                document.getElementById('stat-overdue-sub').textContent = overdueCount > 0
+                    ? `${overdueCount} overdue entr${overdueCount === 1 ? 'y' : 'ies'}`
+                    : 'No overdue dues';
+
+                // Populate Friend Name Datalist & Quick-Pick Chips
+                const sortedFriends = Array.from(allFriendsMap.values()).sort((a, b) => a.localeCompare(b));
+                const datalist = document.getElementById('friends-datalist');
+                datalist.innerHTML = '';
+                sortedFriends.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    datalist.appendChild(option);
+                });
+
+                const chipsContainer = document.getElementById('quick-friend-chips');
+                if (sortedFriends.length > 0) {
+                    chipsContainer.classList.remove('hidden');
+                    chipsContainer.classList.add('flex');
+                    chipsContainer.innerHTML = sortedFriends.slice(0, 6).map(name => `
+                        <button type="button" data-quick-friend="${escapeHTML(name)}"
+                            class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 dark:bg-zinc-800 dark:hover:bg-indigo-500/20 dark:text-zinc-300 dark:hover:text-indigo-300 border border-slate-200/70 dark:border-zinc-700/70 transition cursor-pointer">
+                            ${escapeHTML(name)}
+                        </button>
+                    `).join('');
+                } else {
+                    chipsContainer.classList.add('hidden');
+                    chipsContainer.classList.remove('flex');
+                }
+            }
+
+            // =========================================================================
+            // RENDERING: VIEWS (BY FRIEND & ALL ENTRIES)
+            // =========================================================================
+            function getStatusBadgeHTML(status, overdue = false, dueSoon = false, dueDateStr = '') {
+                if (status === 'settled') {
+                    return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Settled
+                    </span>`;
+                }
+                if (overdue) {
+                    return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200/60 dark:border-rose-500/25">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Overdue
+                    </span>`;
+                }
+                if (dueSoon) {
+                    return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300 border border-orange-200/60 dark:border-orange-500/25">
+                        <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>Due Soon
+                    </span>`;
+                }
+                if (status === 'partial') {
+                    return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300 border border-sky-200/60 dark:border-sky-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>Partially Paid
+                    </span>`;
+                }
+                return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 border border-amber-200/60 dark:border-amber-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending
+                </span>`;
+            }
+
+            function matchesStatusFilter(entry, today) {
+                if (activeStatusFilter === 'all') return true;
+                const status = getEntryStatus(entry);
+                if (activeStatusFilter === 'settled') return status === 'settled';
+                if (activeStatusFilter === 'overdue') return isEntryOverdue(entry, today);
+                if (activeStatusFilter === 'pending') return status !== 'settled';
+                return true;
+            }
+
+            function buildUpiDeepLink(upiId, friendName, amount) {
+                const params = new URLSearchParams({
+                    pa: upiId.trim(),
+                    pn: friendName.trim(),
+                    am: roundMoney(amount).toFixed(2),
+                    cu: 'INR'
+                });
+                return `upi://pay?${params.toString()}`;
+            }
+
+            function renderViews() {
+                const container = document.getElementById('views-container');
+                const query = searchQuery.trim().toLowerCase();
+
+                if (credits.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-10 text-center border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                            <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            </div>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white">No Credits Recorded Yet</h3>
+                            <p class="text-sm text-slate-500 dark:text-zinc-400 max-w-sm mx-auto mt-1">Log money borrowed from a friend using the form. Everything stays saved offline on your device.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (activeTab === 'by-friend') {
+                    renderByFriendView(container, query);
+                } else {
+                    renderAllEntriesView(container, query);
+                }
+            }
+
+            function renderByFriendView(container, query) {
+                const today = getTodayISO();
+                const groupsMap = new Map();
+
+                credits.forEach(entry => {
+                    const displayName = entry.friendName.trim();
+                    const key = displayName.toLowerCase();
+                    if (!groupsMap.has(key)) {
+                        groupsMap.set(key, {
+                            name: displayName,
+                            key: key,
+                            upiId: getFriendUpi(displayName),
+                            entries: [],
+                            totalBorrowed: 0,
+                            totalPaid: 0,
+                            totalOwed: 0,
+                            hasOverdue: false
+                        });
+                    }
+                    const grp = groupsMap.get(key);
+                    grp.entries.push(entry);
+                    grp.totalBorrowed = roundMoney(grp.totalBorrowed + Number(entry.amount));
+                    grp.totalPaid = roundMoney(grp.totalPaid + getEntryPaidAmount(entry));
+                    grp.totalOwed = roundMoney(grp.totalOwed + getEntryRemaining(entry));
+                    if (isEntryOverdue(entry, today)) {
+                        grp.hasOverdue = true;
+                    }
+                });
+
+                let groups = Array.from(groupsMap.values());
+
+                // Filter by status filter
+                if (activeStatusFilter === 'pending') {
+                    groups = groups.filter(g => g.totalOwed > 0);
+                } else if (activeStatusFilter === 'overdue') {
+                    groups = groups.filter(g => g.hasOverdue);
+                } else if (activeStatusFilter === 'settled') {
+                    groups = groups.filter(g => g.totalOwed <= 0);
+                }
+
+                // Filter by search query
+                if (query) {
+                    groups = groups.filter(g =>
+                        g.name.toLowerCase().includes(query) ||
+                        (g.upiId || '').toLowerCase().includes(query) ||
+                        g.entries.some(e => (e.reason || '').toLowerCase().includes(query))
+                    );
+                }
+
+                // Sort: overdue first, then highest owed balance, then alphabetically
+                groups.sort((a, b) => {
+                    if (a.hasOverdue !== b.hasOverdue) return a.hasOverdue ? -1 : 1;
+                    if (b.totalOwed !== a.totalOwed) return b.totalOwed - a.totalOwed;
+                    return a.name.localeCompare(b.name);
+                });
+
+                if (groups.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-8 text-center border border-slate-200/80 dark:border-zinc-800">
+                            <p class="text-sm font-medium text-slate-500 dark:text-zinc-400">No friends match your current search or filter.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = groups.map(group => {
+                    const sortedEntries = [...group.entries].sort((a, b) => b.dateBorrowed.localeCompare(a.dateBorrowed));
+                    const isAllSettled = group.totalOwed <= 0;
+                    const progressPct = group.totalBorrowed > 0
+                        ? Math.min(100, Math.round((group.totalPaid / group.totalBorrowed) * 100))
+                        : 100;
+
+                    const initials = group.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+                    const upiHref = group.upiId ? buildUpiDeepLink(group.upiId, group.name, group.totalOwed) : '';
+
+                    return `
+                    <article class="bg-white dark:bg-zinc-900/90 rounded-2xl border ${group.hasOverdue ? 'border-rose-300 dark:border-rose-500/40' : 'border-slate-200/80 dark:border-zinc-800'} shadow-sm overflow-hidden transition">
+                        <!-- Friend Card Header -->
+                        <div class="p-4 sm:p-5">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-11 h-11 rounded-xl ${isAllSettled ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : group.hasOverdue ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300'} font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
+                                        ${escapeHTML(initials || '?')}
+                                    </div>
+                                    <div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h3 class="text-base font-bold text-slate-900 dark:text-white">${escapeHTML(group.name)}</h3>
+                                            ${isAllSettled
+                                                ? '<span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">Settled</span>'
+                                                : group.hasOverdue
+                                                    ? '<span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">Overdue</span>'
+                                                    : `<span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">${group.entries.length} IOU${group.entries.length > 1 ? 's' : ''}</span>`
+                                            }
+                                        </div>
+                                        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                                            Borrowed <span class="font-semibold text-slate-700 dark:text-zinc-200">${formatMoney(group.totalBorrowed)}</span>
+                                            &bull; Paid <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatMoney(group.totalPaid)}</span>
+                                        </p>
+                                        ${group.upiId ? `
+                                        <div class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 text-[11px] text-slate-600 dark:text-zinc-300">
+                                            <span class="font-mono">${escapeHTML(group.upiId)}</span>
+                                            <button type="button" data-action="copy-upi" data-upi="${escapeHTML(group.upiId)}" title="Copy UPI ID"
+                                                class="ml-1 px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-semibold transition cursor-pointer">
+                                                Copy UPI
+                                            </button>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+
+                                <!-- Owed Amount -->
+                                <div class="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 dark:border-zinc-800">
+                                    <div class="text-left sm:text-right">
+                                        <span class="text-[11px] font-medium text-slate-400 dark:text-zinc-500 block">Remaining Owed</span>
+                                        <span class="text-lg sm:text-xl font-extrabold ${isAllSettled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}">${formatMoney(group.totalOwed)}</span>
+                                    </div>
+                                    <button type="button" data-action="edit-friend" data-friend-key="${escapeHTML(group.key)}" title="Edit friend details or money"
+                                        class="mt-1.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 dark:bg-zinc-800 dark:hover:bg-indigo-500/20 text-slate-700 hover:text-indigo-600 dark:text-zinc-300 dark:hover:text-indigo-300 text-xs font-semibold transition cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="mt-3.5">
+                                <div class="w-full h-1.5 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                    <div class="h-full ${isAllSettled ? 'bg-emerald-500' : 'bg-indigo-500'} rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Friend-level Quick Action Buttons -->
+                            ${!isAllSettled ? `
+                            <div class="mt-4 flex flex-wrap items-center gap-2">
+                                ${group.upiId ? `
+                                <a href="${escapeHTML(upiHref)}"
+                                    class="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition">
+                                    Pay via UPI (${formatMoney(group.totalOwed)})
+                                </a>
+                                ` : ''}
+                                <button type="button" data-action="repay-friend" data-friend-key="${escapeHTML(group.key)}"
+                                    class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-semibold transition cursor-pointer">
+                                    Record Partial Payment
+                                </button>
+                                <button type="button" data-action="settle-friend" data-friend-key="${escapeHTML(group.key)}"
+                                    class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer">
+                                    ✓ Settle All
+                                </button>
+                                ` : ''}
+                                <button type="button" data-action="share-friend" data-friend-key="${escapeHTML(group.key)}"
+                                    class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold transition cursor-pointer" title="Copy or share summary">
+                                    Share Summary
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Breakdown of Individual Entries -->
+                        <div class="bg-slate-50/70 dark:bg-zinc-950/70 border-t border-slate-100 dark:border-zinc-800/80 divide-y divide-slate-100 dark:divide-zinc-800/80">
+                            ${sortedEntries.map(entry => {
+                                const status = getEntryStatus(entry);
+                                const rem = getEntryRemaining(entry);
+                                const paid = getEntryPaidAmount(entry);
+                                const overdue = isEntryOverdue(entry, today);
+                                const dueSoon = isEntryDueSoon(entry, today);
+
+                                return `
+                                <div class="px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                    <div class="space-y-0.5">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="font-semibold text-slate-800 dark:text-zinc-200">${escapeHTML(entry.reason || 'Personal Credit')}</span>
+                                            ${getStatusBadgeHTML(status, overdue, dueSoon, entry.dueDate)}
+                                        </div>
+                                        <div class="text-slate-500 dark:text-zinc-400 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                            <span>Borrowed ${formatDateDisplay(entry.dateBorrowed)}</span>
+                                            ${entry.dueDate ? `<span class="${overdue ? 'text-rose-500 font-semibold' : dueSoon ? 'text-orange-400 font-medium' : ''}">&bull; Due ${formatDateDisplay(entry.dueDate)}</span>` : ''}
+                                            ${paid > 0 && status !== 'settled' ? `<span class="text-sky-600 dark:text-sky-400 font-medium">&bull; Paid ${formatMoney(paid)}</span>` : ''}
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0">
+                                        <div class="text-left sm:text-right">
+                                            <span class="font-bold text-sm text-slate-900 dark:text-white">${formatMoney(rem > 0 ? rem : entry.amount)}</span>
+                                            ${rem > 0 && paid > 0 ? `<span class="block text-[10px] text-slate-400 dark:text-zinc-500">of ${formatMoney(entry.amount)}</span>` : ''}
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            ${status !== 'settled' ? `
+                                            <button type="button" data-action="repay-entry" data-id="${entry.id}" title="Log Payment"
+                                                class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-semibold transition cursor-pointer">
+                                                Pay
+                                            </button>
+                                            ` : `
+                                            <button type="button" data-action="repay-entry" data-id="${entry.id}" title="View Payment History"
+                                                class="px-2 py-1.5 rounded-lg bg-slate-200/70 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-medium transition cursor-pointer">
+                                                History
+                                            </button>
+                                            `}
+                                            <button type="button" data-action="edit-entry" data-id="${entry.id}" title="Edit Entry"
+                                                class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200/60 dark:hover:bg-zinc-800 transition cursor-pointer">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            </button>
+                                            <button type="button" data-action="delete-entry" data-id="${entry.id}" title="Delete Entry"
+                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200/60 dark:hover:bg-zinc-800 transition cursor-pointer">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </article>
+                    `;
+                }).join('');
+            }
+
+            function renderAllEntriesView(container, query) {
+                const today = getTodayISO();
+                let filtered = credits.filter(entry => {
+                    if (!matchesStatusFilter(entry, today)) return false;
+                    if (query) {
+                        const matchName = (entry.friendName || '').toLowerCase().includes(query);
+                        const matchReason = (entry.reason || '').toLowerCase().includes(query);
+                        const matchUpi = (getFriendUpi(entry.friendName) || '').toLowerCase().includes(query);
+                        if (!matchName && !matchReason && !matchUpi) return false;
+                    }
+                    return true;
+                });
+
+                filtered.sort((a, b) => b.dateBorrowed.localeCompare(a.dateBorrowed));
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-8 text-center border border-slate-200/80 dark:border-zinc-800">
+                            <p class="text-sm font-medium text-slate-500 dark:text-zinc-400">No credit entries match your current filter.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="space-y-3">
+                        ${filtered.map(entry => {
+                            const status = getEntryStatus(entry);
+                            const paid = getEntryPaidAmount(entry);
+                            const rem = getEntryRemaining(entry);
+                            const overdue = isEntryOverdue(entry, today);
+                            const dueSoon = isEntryDueSoon(entry, today);
+                            const upiId = getFriendUpi(entry.friendName);
+
+                            return `
+                            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border ${overdue ? 'border-rose-300 dark:border-rose-500/40' : 'border-slate-200/80 dark:border-zinc-800'} shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="space-y-1.5">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">${escapeHTML(entry.friendName)}</span>
+                                        ${getStatusBadgeHTML(status, overdue, dueSoon, entry.dueDate)}
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 font-medium">
+                                        ${escapeHTML(entry.reason || 'Personal Credit')}
+                                    </p>
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-zinc-400">
+                                        <span>Borrowed: ${formatDateDisplay(entry.dateBorrowed)}</span>
+                                        ${entry.dueDate ? `<span class="${overdue ? 'text-rose-500 font-semibold' : dueSoon ? 'text-orange-400 font-medium' : ''}">Due: ${formatDateDisplay(entry.dueDate)}</span>` : ''}
+                                        ${paid > 0 ? `<span class="text-emerald-600 dark:text-emerald-400 font-medium">Repaid: ${formatMoney(paid)}</span>` : ''}
+                                        ${upiId ? `<span class="font-mono text-[11px] text-zinc-500">${escapeHTML(upiId)}</span>` : ''}
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 dark:border-zinc-800">
+                                    <div class="text-left sm:text-right">
+                                        <span class="text-[11px] text-slate-400 dark:text-zinc-500 block">${status === 'settled' ? 'Total Settled' : 'Remaining'}</span>
+                                        <span class="text-base sm:text-lg font-extrabold ${status === 'settled' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}">
+                                            ${formatMoney(status === 'settled' ? entry.amount : rem)}
+                                        </span>
+                                        ${status === 'partial' ? `<span class="block text-[11px] text-slate-400 dark:text-zinc-500">of ${formatMoney(entry.amount)}</span>` : ''}
+                                    </div>
+
+                                    <div class="flex items-center gap-1.5">
+                                        ${status !== 'settled' ? `
+                                        <button type="button" data-action="repay-entry" data-id="${entry.id}"
+                                            class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer">
+                                            Pay
+                                        </button>
+                                        ` : `
+                                        <button type="button" data-action="repay-entry" data-id="${entry.id}"
+                                            class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 text-xs font-semibold transition cursor-pointer">
+                                            History
+                                        </button>
+                                        `}
+                                        <button type="button" data-action="edit-entry" data-id="${entry.id}" title="Edit"
+                                            class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 transition cursor-pointer">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        </button>
+                                        <button type="button" data-action="delete-entry" data-id="${entry.id}" title="Delete"
+                                            class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 dark:bg-zinc-800 dark:hover:bg-rose-500/20 text-slate-600 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 transition cursor-pointer">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            function renderAll() {
+                renderSummaryAndDatalist();
+                renderViews();
+                updateBackupReminderUI();
+            }
+
+            // =========================================================================
+            // CORE ACTIONS: ADD, REPAY, SETTLE, EDIT, DELETE
+            // =========================================================================
+            function handleAddCredit(e) {
+                e.preventDefault();
+                const nameInput = document.getElementById('friend-name');
+                const upiInput = document.getElementById('friend-upi');
+                const amountInput = document.getElementById('credit-amount');
+                const dateBorrowedInput = document.getElementById('date-borrowed');
+                const dueDateInput = document.getElementById('due-date');
+                const reasonInput = document.getElementById('credit-reason');
+
+                const friendName = nameInput.value.trim();
+                const upiId = upiInput.value.trim();
+                const amount = roundMoney(parseFloat(amountInput.value));
+                const dateBorrowed = dateBorrowedInput.value || getTodayISO();
+                const dueDate = dueDateInput.value || '';
+                const reason = reasonInput.value.trim();
+
+                if (!friendName) {
+                    showToast('Please enter your friend\'s name.', 'error');
+                    return;
+                }
+                if (isNaN(amount) || amount <= 0) {
+                    showToast('Please enter a valid borrowed amount.', 'error');
+                    return;
+                }
+
+                if (upiId) {
+                    setFriendMeta(friendName, upiId);
+                } else {
+                    setFriendMeta(friendName);
+                }
+
+                const newEntry = {
+                    id: generateId(),
+                    friendName,
+                    upiId: upiId || getFriendUpi(friendName),
+                    amount,
+                    dateBorrowed,
+                    dueDate,
+                    reason,
+                    payments: [],
+                    createdAt: new Date().toISOString()
+                };
+
+                credits.unshift(newEntry);
+                saveCredits();
+                renderAll();
+
+                // Reset fields except dateBorrowed
+                amountInput.value = '';
+                dueDateInput.value = '';
+                reasonInput.value = '';
+                nameInput.value = '';
+                upiInput.value = '';
+                showToast(`Added ${formatMoney(amount)} credit from ${friendName}`);
+            }
+
+            function openRepayModalForEntry(entryId) {
+                const entry = credits.find(c => c.id === entryId);
+                if (!entry) return;
+
+                const rem = getEntryRemaining(entry);
+                document.getElementById('repay-mode').value = 'entry';
+                document.getElementById('repay-target-id').value = entry.id;
+                document.getElementById('repay-modal-title').textContent = rem > 0 ? 'Record Repayment' : 'Payment History';
+                document.getElementById('repay-modal-subtitle').textContent = `${entry.friendName} — ${entry.reason || 'Personal Credit'}`;
+                document.getElementById('repay-remaining-display').textContent = formatMoney(rem);
+
+                const amountInput = document.getElementById('repay-amount');
+                amountInput.max = rem;
+                amountInput.value = rem > 0 ? rem : '';
+                amountInput.disabled = rem <= 0;
+                document.getElementById('repay-full-btn').style.display = rem > 0 ? 'inline' : 'none';
+                document.getElementById('repay-date').value = getTodayISO();
+                document.getElementById('repay-note').value = '';
+
+                const historySection = document.getElementById('repay-history-section');
+                const historyList = document.getElementById('repay-history-list');
+                if (entry.payments && entry.payments.length > 0) {
+                    historySection.classList.remove('hidden');
+                    historyList.innerHTML = entry.payments.map(p => `
+                        <li class="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-slate-50 dark:bg-zinc-950 text-slate-600 dark:text-zinc-300">
+                            <span>${formatDateDisplay(p.date)} ${p.note ? `(${escapeHTML(p.note)})` : ''}</span>
+                            <span class="font-semibold text-emerald-600 dark:text-emerald-400">+${formatMoney(p.amount)}</span>
+                        </li>
+                    `).join('');
+                } else {
+                    historySection.classList.add('hidden');
+                }
+
+                const modal = document.getElementById('repay-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                if (rem > 0) amountInput.focus();
+            }
+
+            function openRepayModalForFriend(friendKey) {
+                const friendEntries = credits.filter(c => c.friendName.trim().toLowerCase() === friendKey);
+                if (friendEntries.length === 0) return;
+
+                const friendName = friendEntries[0].friendName.trim();
+                const totalOwed = roundMoney(friendEntries.reduce((sum, e) => sum + getEntryRemaining(e), 0));
+                if (totalOwed <= 0) return;
+
+                document.getElementById('repay-mode').value = 'friend';
+                document.getElementById('repay-target-id').value = friendKey;
+                document.getElementById('repay-modal-title').textContent = 'Record Payment to Friend';
+                document.getElementById('repay-modal-subtitle').textContent = `Distributes payment across oldest dues to ${friendName}`;
+                document.getElementById('repay-remaining-display').textContent = formatMoney(totalOwed);
+
+                const amountInput = document.getElementById('repay-amount');
+                amountInput.disabled = false;
+                amountInput.max = totalOwed;
+                amountInput.value = '';
+                document.getElementById('repay-full-btn').style.display = 'inline';
+                document.getElementById('repay-date').value = getTodayISO();
+                document.getElementById('repay-note').value = '';
+                document.getElementById('repay-history-section').classList.add('hidden');
+
+                const modal = document.getElementById('repay-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                amountInput.focus();
+            }
+
+            function closeRepayModal() {
+                const modal = document.getElementById('repay-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            function handleRepaySubmit(e) {
+                e.preventDefault();
+                const mode = document.getElementById('repay-mode').value;
+                const targetId = document.getElementById('repay-target-id').value;
+                const payAmount = roundMoney(parseFloat(document.getElementById('repay-amount').value));
+                const payDate = document.getElementById('repay-date').value || getTodayISO();
+                const payNote = document.getElementById('repay-note').value.trim();
+
+                if (isNaN(payAmount) || payAmount <= 0) {
+                    showToast('Enter a valid repayment amount.', 'error');
+                    return;
+                }
+
+                if (mode === 'entry') {
+                    const entry = credits.find(c => c.id === targetId);
+                    if (!entry) return;
+                    const rem = getEntryRemaining(entry);
+                    if (payAmount > rem + 0.001) {
+                        showToast(`Amount cannot exceed remaining balance (${formatMoney(rem)}).`, 'error');
+                        return;
+                    }
+                    entry.payments.push({
+                        id: generateId(),
+                        amount: Math.min(payAmount, rem),
+                        date: payDate,
+                        note: payNote
+                    });
+                    saveCredits();
+                    renderAll();
+                    closeRepayModal();
+                    showToast(`Recorded ${formatMoney(payAmount)} payment to ${entry.friendName}`);
+                } else if (mode === 'friend') {
+                    const friendEntries = credits
+                        .filter(c => c.friendName.trim().toLowerCase() === targetId && getEntryRemaining(c) > 0)
+                        .sort((a, b) => a.dateBorrowed.localeCompare(b.dateBorrowed));
+
+                    const totalOwed = roundMoney(friendEntries.reduce((s, c) => s + getEntryRemaining(c), 0));
+                    if (payAmount > totalOwed + 0.001) {
+                        showToast(`Amount cannot exceed total owed (${formatMoney(totalOwed)}).`, 'error');
+                        return;
+                    }
+
+                    let pool = payAmount;
+                    for (const entry of friendEntries) {
+                        if (pool <= 0) break;
+                        const rem = getEntryRemaining(entry);
+                        const slice = roundMoney(Math.min(pool, rem));
+                        entry.payments.push({
+                            id: generateId(),
+                            amount: slice,
+                            date: payDate,
+                            note: payNote || 'Bulk payment'
+                        });
+                        pool = roundMoney(pool - slice);
+                    }
+
+                    saveCredits();
+                    renderAll();
+                    closeRepayModal();
+                    const displayFriend = friendEntries[0] ? friendEntries[0].friendName : 'friend';
+                    showToast(`Recorded ${formatMoney(payAmount)} payment to ${displayFriend}`);
+                }
+            }
+
+            function settleAllForFriend(friendKey) {
+                const friendEntries = credits.filter(c => c.friendName.trim().toLowerCase() === friendKey && getEntryRemaining(c) > 0);
+                if (friendEntries.length === 0) return;
+
+                const friendName = friendEntries[0].friendName.trim();
+                const totalOwed = roundMoney(friendEntries.reduce((sum, e) => sum + getEntryRemaining(e), 0));
+
+                openConfirmModal(
+                    `Settle All with ${friendName}?`,
+                    `This will mark all pending IOUs (${formatMoney(totalOwed)}) from ${friendName} as fully paid today.`,
+                    'Settle All',
+                    () => {
+                        const today = getTodayISO();
+                        friendEntries.forEach(entry => {
+                            const rem = getEntryRemaining(entry);
+                            if (rem > 0) {
+                                entry.payments.push({
+                                    id: generateId(),
+                                    amount: rem,
+                                    date: today,
+                                    note: 'Settled in full'
+                                });
+                            }
+                        });
+                        saveCredits();
+                        renderAll();
+                        showToast(`All dues with ${friendName} settled!`);
+                    }
+                );
+            }
+
+            function openEditModal(entryId) {
+                const entry = credits.find(c => c.id === entryId);
+                if (!entry) return;
+
+                document.getElementById('edit-id').value = entry.id;
+                document.getElementById('edit-friend-name').value = entry.friendName;
+                document.getElementById('edit-friend-upi').value = getFriendUpi(entry.friendName) || entry.upiId || '';
+                document.getElementById('edit-amount').value = entry.amount;
+                document.getElementById('edit-paid-amount').value = getEntryPaidAmount(entry);
+                document.getElementById('edit-date-borrowed').value = entry.dateBorrowed;
+                document.getElementById('edit-due-date').value = entry.dueDate || '';
+                document.getElementById('edit-reason').value = entry.reason || '';
+
+                const modal = document.getElementById('edit-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function closeEditModal() {
+                const modal = document.getElementById('edit-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            function syncEntryPaidAmount(entry, targetPaid, dateStr = getTodayISO()) {
+                const clampedPaid = roundMoney(Math.max(0, Math.min(targetPaid, Number(entry.amount))));
+                const currentPaid = getEntryPaidAmount(entry);
+                if (Math.abs(clampedPaid - currentPaid) < 0.001) return;
+
+                if (clampedPaid === 0) {
+                    entry.payments = [];
+                } else {
+                    entry.payments = [{
+                        id: generateId(),
+                        amount: clampedPaid,
+                        date: dateStr,
+                        note: 'Adjusted balance'
+                    }];
+                }
+            }
+
+            function handleEditSubmit(e) {
+                e.preventDefault();
+                const id = document.getElementById('edit-id').value;
+                const entry = credits.find(c => c.id === id);
+                if (!entry) return;
+
+                const newName = document.getElementById('edit-friend-name').value.trim();
+                const newUpi = document.getElementById('edit-friend-upi').value.trim();
+                const newAmount = roundMoney(parseFloat(document.getElementById('edit-amount').value));
+                const newPaid = roundMoney(parseFloat(document.getElementById('edit-paid-amount').value));
+                const newDate = document.getElementById('edit-date-borrowed').value;
+                const newDue = document.getElementById('edit-due-date').value;
+                const newReason = document.getElementById('edit-reason').value.trim();
+
+                if (!newName || isNaN(newAmount) || newAmount <= 0) {
+                    showToast('Please enter a valid friend name and borrowed amount.', 'error');
+                    return;
+                }
+                if (isNaN(newPaid) || newPaid < 0 || newPaid > newAmount + 0.001) {
+                    showToast(`Paid amount must be between ${formatMoney(0)} and ${formatMoney(newAmount)}.`, 'error');
+                    return;
+                }
+
+                entry.friendName = newName;
+                entry.upiId = newUpi;
+                entry.amount = newAmount;
+                entry.dateBorrowed = newDate;
+                entry.dueDate = newDue;
+                entry.reason = newReason;
+                syncEntryPaidAmount(entry, newPaid, getTodayISO());
+
+                setFriendMeta(newName, newUpi);
+                saveCredits();
+                renderAll();
+                closeEditModal();
+                showToast('Credit entry updated.');
+            }
+
+            function populateEditFriendEntryFields(entryId) {
+                const entry = credits.find(c => c.id === entryId);
+                if (!entry) return;
+                document.getElementById('edit-friend-entry-amount').value = entry.amount;
+                document.getElementById('edit-friend-entry-paid').value = getEntryPaidAmount(entry);
+            }
+
+            function openEditFriendModal(friendKey) {
+                const friendEntries = credits.filter(c => c.friendName.trim().toLowerCase() === friendKey);
+                if (friendEntries.length === 0) return;
+
+                const sorted = [...friendEntries].sort((a, b) => b.dateBorrowed.localeCompare(a.dateBorrowed));
+                const friendName = sorted[0].friendName.trim();
+                const upiId = getFriendUpi(friendName) || sorted[0].upiId || '';
+
+                document.getElementById('edit-friend-old-key').value = friendKey;
+                document.getElementById('edit-friend-subtitle').textContent = `${friendEntries.length} credit entr${friendEntries.length === 1 ? 'y' : 'ies'} for ${friendName}`;
+                document.getElementById('edit-friend-card-name').value = friendName;
+                document.getElementById('edit-friend-card-upi').value = upiId;
+
+                const select = document.getElementById('edit-friend-entry-select');
+                select.innerHTML = sorted.map(item => {
+                    const label = `${item.reason || 'Personal Credit'} (${formatDateDisplay(item.dateBorrowed)}) — Due ${formatMoney(getEntryRemaining(item))}`;
+                    return `<option value="${item.id}">${escapeHTML(label)}</option>`;
+                }).join('');
+
+                populateEditFriendEntryFields(sorted[0].id);
+
+                const modal = document.getElementById('edit-friend-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function closeEditFriendModal() {
+                const modal = document.getElementById('edit-friend-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            function handleEditFriendSubmit(e) {
+                e.preventDefault();
+                const oldKey = document.getElementById('edit-friend-old-key').value;
+                const newName = document.getElementById('edit-friend-card-name').value.trim();
+                const newUpi = document.getElementById('edit-friend-card-upi').value.trim();
+                const selectedEntryId = document.getElementById('edit-friend-entry-select').value;
+                const newAmount = roundMoney(parseFloat(document.getElementById('edit-friend-entry-amount').value));
+                const newPaid = roundMoney(parseFloat(document.getElementById('edit-friend-entry-paid').value));
+
+                if (!newName) {
+                    showToast('Friend name cannot be empty.', 'error');
+                    return;
+                }
+                if (isNaN(newAmount) || newAmount <= 0) {
+                    showToast('Enter a valid borrowed amount.', 'error');
+                    return;
+                }
+                if (isNaN(newPaid) || newPaid < 0 || newPaid > newAmount + 0.001) {
+                    showToast(`Paid amount must be between ${formatMoney(0)} and ${formatMoney(newAmount)}.`, 'error');
+                    return;
+                }
+
+                const targetEntry = credits.find(c => c.id === selectedEntryId);
+                if (targetEntry) {
+                    targetEntry.amount = newAmount;
+                    syncEntryPaidAmount(targetEntry, newPaid, getTodayISO());
+                }
+
+                credits.forEach(c => {
+                    if (c.friendName.trim().toLowerCase() === oldKey) {
+                        c.friendName = newName;
+                        if (newUpi) c.upiId = newUpi;
+                    }
+                });
+
+                const newKey = newName.toLowerCase();
+                if (oldKey !== newKey && friendsMeta[oldKey]) {
+                    delete friendsMeta[oldKey];
+                }
+                setFriendMeta(newName, newUpi);
+
+                saveCredits();
+                renderAll();
+                closeEditFriendModal();
+                showToast(`Updated ${newName}'s details and balance.`);
+            }
+
+            function deleteEntry(entryId) {
+                const entry = credits.find(c => c.id === entryId);
+                if (!entry) return;
+
+                openConfirmModal(
+                    'Delete Credit Entry?',
+                    `Delete the ${formatMoney(entry.amount)} entry from ${entry.friendName}? This cannot be undone.`,
+                    'Delete',
+                    () => {
+                        credits = credits.filter(c => c.id !== entryId);
+                        saveCredits();
+                        renderAll();
+                        showToast('Entry deleted.', 'info');
+                    }
+                );
+            }
+
+            function shareFriendSummary(friendKey) {
+                const friendEntries = credits.filter(c => c.friendName.trim().toLowerCase() === friendKey);
+                if (friendEntries.length === 0) return;
+
+                const friendName = friendEntries[0].friendName.trim();
+                const totalBorrowed = roundMoney(friendEntries.reduce((s, e) => s + Number(e.amount), 0));
+                const totalPaid = roundMoney(friendEntries.reduce((s, e) => s + getEntryPaidAmount(e), 0));
+                const totalOwed = roundMoney(friendEntries.reduce((s, e) => s + getEntryRemaining(e), 0));
+                const upiId = getFriendUpi(friendName);
+
+                const lines = [
+                    `Credit Summary for ${friendName}:`,
+                    `Total Borrowed: ${formatMoney(totalBorrowed)} | Repaid: ${formatMoney(totalPaid)}`,
+                    `Remaining Owed: ${formatMoney(totalOwed)}`,
+                    ...friendEntries.map(e => {
+                        const rem = getEntryRemaining(e);
+                        const label = e.reason || 'Personal Credit';
+                        return `• ${label} (${formatDateDisplay(e.dateBorrowed)}): ${rem > 0 ? `${formatMoney(rem)} due` : 'Settled'}`;
+                    })
+                ];
+                if (upiId) {
+                    lines.push(`UPI: ${upiId}`);
+                }
+
+                const summaryText = lines.join('\n');
+                if (navigator.share) {
+                    navigator.share({
+                        title: `FriendCredit — ${friendName}`,
+                        text: summaryText
+                    }).catch(() => {
+                        copyToClipboard(summaryText, `Copied ${friendName}'s credit summary!`);
+                    });
+                } else {
+                    copyToClipboard(summaryText, `Copied ${friendName}'s credit summary!`);
+                }
+            }
+
+            // =========================================================================
+            // EXPORT & IMPORT BACKUP FEATURES
+            // =========================================================================
+            function buildBackupPayload() {
+                return {
+                    app: 'FriendCredit',
+                    version: 2,
+                    exportedAt: new Date().toISOString(),
+                    currency: settings.currency,
+                    friendsMeta,
+                    credits
+                };
+            }
+
+            function markBackupCompleted() {
+                backupMeta.lastBackupAt = Date.now();
+                backupMeta.dismissedUntil = 0;
+                saveBackupMeta();
+                updateBackupReminderUI();
+            }
+
+            function exportJSON() {
+                const payload = buildBackupPayload();
+                const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `friendcredit-backup-${getTodayISO()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                markBackupCompleted();
+                showToast('JSON backup downloaded.');
+            }
+
+            function copyBackupText() {
+                const payload = JSON.stringify(buildBackupPayload(), null, 2);
+                copyToClipboard(payload, 'Full JSON backup copied to clipboard!');
+                markBackupCompleted();
+            }
+
+            function exportCSV() {
+                const headers = ['ID', 'Friend Name', 'UPI ID', 'Amount Borrowed', 'Amount Paid', 'Remaining Balance', 'Status', 'Date Borrowed', 'Due Date', 'Reason'];
+                const rows = credits.map(c => {
+                    const paid = getEntryPaidAmount(c);
+                    const rem = getEntryRemaining(c);
+                    const status = getEntryStatus(c);
+                    return [
+                        c.id,
+                        c.friendName,
+                        getFriendUpi(c.friendName) || c.upiId || '',
+                        c.amount,
+                        paid,
+                        rem,
+                        status,
+                        c.dateBorrowed,
+                        c.dueDate || '',
+                        c.reason || ''
+                    ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
+                });
+
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `friendcredit-export-${getTodayISO()}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('CSV spreadsheet downloaded.');
+            }
+
+            function handleImportJSON(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    try {
+                        const parsed = JSON.parse(event.target.result);
+                        const importedList = Array.isArray(parsed) ? parsed : parsed.credits;
+                        if (!Array.isArray(importedList)) {
+                            throw new Error('Invalid backup format.');
+                        }
+
+                        const validEntries = importedList.filter(item =>
+                            item && typeof item.friendName === 'string' && !isNaN(Number(item.amount))
+                        ).map(item => ({
+                            id: item.id || generateId(),
+                            friendName: item.friendName.trim(),
+                            upiId: item.upiId || '',
+                            amount: roundMoney(item.amount),
+                            dateBorrowed: item.dateBorrowed || getTodayISO(),
+                            dueDate: item.dueDate || '',
+                            reason: item.reason || '',
+                            payments: Array.isArray(item.payments) ? item.payments : [],
+                            createdAt: item.createdAt || new Date().toISOString()
+                        }));
+
+                        openConfirmModal(
+                            'Import Backup Data?',
+                            `Found ${validEntries.length} records. Replace your current data with this backup?`,
+                            'Replace & Import',
+                            () => {
+                                credits = validEntries;
+                                if (parsed.friendsMeta && typeof parsed.friendsMeta === 'object') {
+                                    friendsMeta = parsed.friendsMeta;
+                                } else {
+                                    friendsMeta = {};
+                                }
+                                validEntries.forEach(v => {
+                                    if (v.upiId) setFriendMeta(v.friendName, v.upiId);
+                                });
+                                saveFriendsMeta();
+
+                                if (parsed.currency && ['₹', '$', '€', '£'].includes(parsed.currency)) {
+                                    settings.currency = parsed.currency;
+                                    saveSettings();
+                                    applyCurrencyUI();
+                                }
+                                saveCredits();
+                                renderAll();
+                                showToast(`Imported ${validEntries.length} credit records!`);
+                            }
+                        );
+                    } catch (err) {
+                        showToast('Invalid JSON backup file.', 'error');
+                    } finally {
+                        e.target.value = '';
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            // =========================================================================
+            // EVENT LISTENERS & INITIALIZATION
+            // =========================================================================
+            function setActiveFilterPill(filterVal) {
+                activeStatusFilter = filterVal;
+                document.querySelectorAll('.filter-pill').forEach(b => {
+                    if (b.dataset.filter === activeStatusFilter) {
+                        b.className = 'filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white transition cursor-pointer';
+                    } else {
+                        b.className = 'filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer';
+                    }
+                });
+                renderViews();
+            }
+
+            function initEventListeners() {
+                document.getElementById('date-borrowed').value = getTodayISO();
+
+                // Add Credit Form
+                document.getElementById('add-credit-form').addEventListener('submit', handleAddCredit);
+
+                // Auto-fill UPI ID when selecting or typing an existing friend
+                const friendNameInput = document.getElementById('friend-name');
+                const friendUpiInput = document.getElementById('friend-upi');
+                friendNameInput.addEventListener('input', () => {
+                    const knownUpi = getFriendUpi(friendNameInput.value);
+                    if (knownUpi) {
+                        friendUpiInput.value = knownUpi;
+                    }
+                });
+
+                // Quick-pick friend chips
+                document.getElementById('quick-friend-chips').addEventListener('click', (e) => {
+                    const chip = e.target.closest('[data-quick-friend]');
+                    if (!chip) return;
+                    const chosenName = chip.dataset.quickFriend;
+                    friendNameInput.value = chosenName;
+                    friendUpiInput.value = getFriendUpi(chosenName) || '';
+                    document.getElementById('credit-amount').focus();
+                });
+
+                // Overdue summary card quick filter
+                document.getElementById('stat-overdue-card').addEventListener('click', () => {
+                    setActiveFilterPill(activeStatusFilter === 'overdue' ? 'all' : 'overdue');
+                });
+
+                // Backup reminder banner controls
+                document.getElementById('banner-export-btn').addEventListener('click', exportJSON);
+                document.getElementById('banner-dismiss-btn').addEventListener('click', () => {
+                    backupMeta.dismissedUntil = Date.now() + (3 * 24 * 60 * 60 * 1000);
+                    saveBackupMeta();
+                    updateBackupReminderUI();
+                });
+
+                // Currency Switcher
+                document.getElementById('currency-select').addEventListener('change', (e) => {
+                    settings.currency = e.target.value;
+                    saveSettings();
+                    applyCurrencyUI();
+                    renderAll();
+                    showToast(`Currency switched to ${settings.currency}`, 'info');
+                });
+
+                // Theme Toggle
+                document.getElementById('theme-toggle').addEventListener('click', () => {
+                    settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+                    saveSettings();
+                    applyTheme();
+                });
+
+                // Backup Dropdown Toggle
+                const backupBtn = document.getElementById('backup-menu-btn');
+                const backupMenu = document.getElementById('backup-menu');
+                backupBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    backupMenu.classList.toggle('hidden');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!document.getElementById('backup-dropdown-wrapper').contains(e.target)) {
+                        backupMenu.classList.add('hidden');
+                    }
+                });
+
+                document.getElementById('export-json-btn').addEventListener('click', () => {
+                    backupMenu.classList.add('hidden');
+                    exportJSON();
+                });
+                document.getElementById('copy-backup-btn').addEventListener('click', () => {
+                    backupMenu.classList.add('hidden');
+                    copyBackupText();
+                });
+                document.getElementById('export-csv-btn').addEventListener('click', () => {
+                    backupMenu.classList.add('hidden');
+                    exportCSV();
+                });
+                document.getElementById('import-json-input').addEventListener('change', (e) => {
+                    backupMenu.classList.add('hidden');
+                    handleImportJSON(e);
+                });
+
+                // Tabs Switching
+                const tabByFriend = document.getElementById('tab-by-friend');
+                const tabAllEntries = document.getElementById('tab-all-entries');
+
+                tabByFriend.addEventListener('click', () => {
+                    activeTab = 'by-friend';
+                    tabByFriend.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm';
+                    tabAllEntries.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white';
+                    renderViews();
+                });
+
+                tabAllEntries.addEventListener('click', () => {
+                    activeTab = 'all-entries';
+                    tabAllEntries.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm';
+                    tabByFriend.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white';
+                    renderViews();
+                });
+
+                // Search Input
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    searchQuery = e.target.value;
+                    renderViews();
+                });
+
+                // Status Filter Pills
+                document.querySelectorAll('.filter-pill').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setActiveFilterPill(btn.dataset.filter);
+                    });
+                });
+
+                // Event Delegation for Dynamic Action Buttons inside Views Container
+                document.getElementById('views-container').addEventListener('click', (e) => {
+                    const btn = e.target.closest('[data-action]');
+                    if (!btn) return;
+                    const action = btn.dataset.action;
+
+                    if (action === 'copy-upi') {
+                        copyToClipboard(btn.dataset.upi, `Copied UPI ID: ${btn.dataset.upi}`);
+                    } else if (action === 'repay-entry') {
+                        openRepayModalForEntry(btn.dataset.id);
+                    } else if (action === 'repay-friend') {
+                        openRepayModalForFriend(btn.dataset.friendKey);
+                    } else if (action === 'edit-friend') {
+                        openEditFriendModal(btn.dataset.friendKey);
+                    } else if (action === 'settle-friend') {
+                        settleAllForFriend(btn.dataset.friendKey);
+                    } else if (action === 'share-friend') {
+                        shareFriendSummary(btn.dataset.friendKey);
+                    } else if (action === 'edit-entry') {
+                        openEditModal(btn.dataset.id);
+                    } else if (action === 'delete-entry') {
+                        deleteEntry(btn.dataset.id);
+                    }
+                });
+
+                // Repay Modal Controls
+                document.getElementById('repay-form').addEventListener('submit', handleRepaySubmit);
+                document.getElementById('close-repay-modal').addEventListener('click', closeRepayModal);
+                document.getElementById('cancel-repay-btn').addEventListener('click', closeRepayModal);
+                document.getElementById('repay-full-btn').addEventListener('click', () => {
+                    const amountInput = document.getElementById('repay-amount');
+                    amountInput.value = amountInput.max;
+                });
+
+                // Edit Modal Controls
+                document.getElementById('edit-form').addEventListener('submit', handleEditSubmit);
+                document.getElementById('close-edit-modal').addEventListener('click', closeEditModal);
+                document.getElementById('cancel-edit-btn').addEventListener('click', closeEditModal);
+
+                // Edit Friend Modal Controls
+                document.getElementById('edit-friend-form').addEventListener('submit', handleEditFriendSubmit);
+                document.getElementById('close-edit-friend-modal').addEventListener('click', closeEditFriendModal);
+                document.getElementById('cancel-edit-friend-btn').addEventListener('click', closeEditFriendModal);
+                document.getElementById('edit-friend-entry-select').addEventListener('change', (e) => {
+                    populateEditFriendEntryFields(e.target.value);
+                });
+
+                // Confirm Modal Controls
+                document.getElementById('confirm-cancel-btn').addEventListener('click', closeConfirmModal);
+                document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+                    if (typeof confirmCallback === 'function') {
+                        confirmCallback();
+                    }
+                    closeConfirmModal();
+                });
+
+                // Close modals on Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        closeRepayModal();
+                        closeEditModal();
+                        closeEditFriendModal();
+                        closeConfirmModal();
+                        backupMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Boot Application
+            loadState();
+            applyTheme();
+            applyCurrencyUI();
+            initEventListeners();
+            renderAll();
+        })();
+    </script>
+</body>
+</html>
