@@ -13,13 +13,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: "22"
 
       - name: Setup Java 21
         uses: actions/setup-java@v4
@@ -30,8 +29,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Verify www/index.html exists
+        run: test -f www/index.html
+
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Add and sync Android platform
         run: |
