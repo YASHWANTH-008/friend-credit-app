@@ -44,6 +44,50 @@
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100 font-sans antialiased transition-colors duration-200 min-h-screen flex flex-col pb-24">
 
+    <!-- Biometric & 4-Digit PIN App Lock Overlay -->
+    <div id="app-lock-screen" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl text-white">
+        <div class="w-full max-w-xs flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/10">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+                </svg>
+            </div>
+            <h2 class="text-xl font-extrabold tracking-tight">FriendCredit Locked</h2>
+            <p id="lock-screen-subtitle" class="text-xs text-zinc-400 mt-1">Verify with Biometrics or enter your 4-digit PIN</p>
+
+            <!-- PIN Dots -->
+            <div id="pin-dots" class="flex items-center gap-3.5 my-6">
+                <span class="w-3.5 h-3.5 rounded-full border-2 border-zinc-600 transition-all"></span>
+                <span class="w-3.5 h-3.5 rounded-full border-2 border-zinc-600 transition-all"></span>
+                <span class="w-3.5 h-3.5 rounded-full border-2 border-zinc-600 transition-all"></span>
+                <span class="w-3.5 h-3.5 rounded-full border-2 border-zinc-600 transition-all"></span>
+            </div>
+            <p id="lock-error-msg" class="text-xs font-semibold text-rose-400 h-4 mb-3"></p>
+
+            <!-- Numeric Keypad -->
+            <div class="grid grid-cols-3 gap-3 w-full max-w-[260px]">
+                <button type="button" data-pin-digit="1" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">1</button>
+                <button type="button" data-pin-digit="2" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">2</button>
+                <button type="button" data-pin-digit="3" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">3</button>
+                <button type="button" data-pin-digit="4" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">4</button>
+                <button type="button" data-pin-digit="5" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">5</button>
+                <button type="button" data-pin-digit="6" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">6</button>
+                <button type="button" data-pin-digit="7" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">7</button>
+                <button type="button" data-pin-digit="8" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">8</button>
+                <button type="button" data-pin-digit="9" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">9</button>
+                <button type="button" id="biometric-trigger-btn" title="Unlock with Fingerprint / Face ID" class="h-14 rounded-2xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 flex items-center justify-center active:scale-95 transition cursor-pointer">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+                    </svg>
+                </button>
+                <button type="button" data-pin-digit="0" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-lg font-bold transition cursor-pointer">0</button>
+                <button type="button" id="pin-backspace-btn" aria-label="Backspace" class="h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 flex items-center justify-center active:scale-95 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container (Replaces alert) -->
     <div id="toast-container" class="fixed bottom-24 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
@@ -60,29 +104,37 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight leading-none text-slate-900 dark:text-white">FriendCredit</h1>
-                    <p class="text-[11px] font-medium text-slate-500 dark:text-zinc-400 mt-0.5 hidden sm:block">Personal IOU &amp; Borrowed Money Tracker</p>
+                    <p class="text-[11px] font-medium text-slate-500 dark:text-zinc-400 mt-0.5 hidden sm:block">Personal IOU &amp; Borrowed / Lent Tracker</p>
                 </div>
             </div>
 
-            <!-- Right Controls: Currency, Backup Menu, Theme Toggle -->
-            <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Right Controls: Security Lock, Currency, Backup Menu, Theme Toggle -->
+            <div class="flex items-center gap-1.5 sm:gap-2.5">
+                <!-- App Lock / Biometric Security Button -->
+                <button id="security-settings-btn" type="button" title="Biometric & PIN App Lock" class="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition cursor-pointer">
+                    <svg id="header-lock-icon" class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <span id="header-lock-label" class="hidden sm:inline">Lock</span>
+                </button>
+
                 <!-- Currency Selector -->
                 <div class="relative">
                     <label for="currency-select" class="sr-only">Select Currency</label>
-                    <select id="currency-select" title="Currency Symbol" class="appearance-none bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-xl pl-3 pr-7 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select id="currency-select" title="Currency Symbol" class="appearance-none bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-semibold rounded-xl pl-2.5 pr-6 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="₹">₹ INR</option>
                         <option value="$">$ USD</option>
                         <option value="€">€ EUR</option>
                         <option value="£">£ GBP</option>
                     </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-500">
+                    <div class="pointer-events-none absolute inset-y-0 right-1.5 flex items-center text-slate-500">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </div>
                 </div>
 
                 <!-- Backup / Export Dropdown -->
                 <div class="relative" id="backup-dropdown-wrapper">
-                    <button id="backup-menu-btn" type="button" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 text-sm font-medium px-3 py-2 rounded-xl transition cursor-pointer">
+                    <button id="backup-menu-btn" type="button" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-slate-200 text-sm font-medium px-2.5 sm:px-3 py-2 rounded-xl transition cursor-pointer">
                         <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span class="hidden sm:inline">Backup</span>
                     </button>
@@ -141,15 +193,15 @@
             </div>
         </div>
 
-        <!-- 1. Dashboard Summary Cards (4 Cards) -->
+        <!-- 1. Dashboard Summary Cards -->
         <section id="summary-page-section" aria-label="Summary Overview" class="hidden space-y-4">
             <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
                 <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Summary Page</p>
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white">Credit Overview</h2>
-                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Total borrowed balance, repaid amount, active friends, and overdue dues</p>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Track what you owe friends, what friends owe you, repaid totals, and overdue dues</p>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <!-- Total You Owe -->
                 <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
                     <div class="flex items-center justify-between">
@@ -160,6 +212,18 @@
                     </div>
                     <div id="stat-outstanding" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">₹0</div>
                     <p id="stat-outstanding-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Pending dues to friends</p>
+                </div>
+
+                <!-- Friends Owe You (Lent) -->
+                <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Friends Owe You</span>
+                        <span class="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </span>
+                    </div>
+                    <div id="stat-lent-outstanding" class="mt-2.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-teal-600 dark:text-teal-400">₹0</div>
+                    <p id="stat-lent-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Money lent to friends</p>
                 </div>
 
                 <!-- Total Repaid -->
@@ -174,10 +238,10 @@
                     <p id="stat-repaid-sub" class="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 truncate">Out of ₹0 borrowed</p>
                 </div>
 
-                <!-- Friends Owed -->
+                <!-- Active Friends -->
                 <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
                     <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Friends Owed</span>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Active Friends</span>
                         <span class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </span>
@@ -187,7 +251,7 @@
                 </div>
 
                 <!-- Overdue -->
-                <div id="stat-overdue-card" title="Click to view overdue entries on Home" class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm cursor-pointer hover:border-rose-300 dark:hover:border-rose-500/40 transition">
+                <div id="stat-overdue-card" title="Click to view overdue people" class="col-span-2 lg:col-span-2 bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm cursor-pointer hover:border-rose-300 dark:hover:border-rose-500/40 transition">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Overdue</span>
                         <span class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center">
@@ -200,18 +264,31 @@
             </div>
         </section>
 
-        <!-- 2. Home Page View (Ends With Add Borrowed Credit) -->
+        <!-- 2. Home Page View (Ends With Add Credit Form) -->
         <section id="home-page-section" class="space-y-6">
             <div id="views-container" class="hidden"></div>
 
-            <!-- End of Home Page: Add Borrowed Credit Form -->
+            <!-- End of Home Page: Add Credit Form (You Borrowed / You Lent) -->
             <div id="add-credit-section" class="bg-white dark:bg-zinc-900/90 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
-                <div class="mb-4">
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Add Borrowed Credit</h2>
-                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Log money taken from a friend</p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 id="form-section-title" class="text-base font-bold text-slate-900 dark:text-white">Add Borrowed Credit</h2>
+                        <p id="form-section-subtitle" class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Log money taken from a friend</p>
+                    </div>
+                    <!-- Borrowed vs Lent Segmented Toggle -->
+                    <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 self-start sm:self-auto">
+                        <button type="button" id="type-borrowed-btn" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-xs transition cursor-pointer">
+                            You Borrowed
+                        </button>
+                        <button type="button" id="type-lent-btn" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer">
+                            You Lent
+                        </button>
+                    </div>
                 </div>
 
                 <form id="add-credit-form" class="space-y-4">
+                    <input type="hidden" id="credit-type" value="borrowed">
+
                     <div>
                         <label for="friend-name" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Friend's Name</label>
                         <input type="text" id="friend-name" list="friends-datalist" placeholder="e.g. Rahul" required
@@ -221,13 +298,13 @@
                     </div>
 
                     <div>
-                        <label for="friend-upi" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">UPI ID / Phone <span class="font-normal text-slate-400 dark:text-zinc-500">(Optional)</span></label>
+                        <label for="friend-upi" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">UPI ID / Phone <span class="font-normal text-slate-400 dark:text-zinc-500">(For UPI Pay &amp; WhatsApp)</span></label>
                         <input type="text" id="friend-upi" placeholder="e.g. rahul@okaxis or 9876543210"
                             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
                     <div>
-                        <label for="credit-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Amount Borrowed</label>
+                        <label id="credit-amount-label" for="credit-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Amount Borrowed</label>
                         <div class="relative">
                             <span id="form-currency-prefix" class="absolute inset-y-0 left-3.5 flex items-center text-sm font-bold text-slate-500 dark:text-zinc-400 pointer-events-none">₹</span>
                             <input type="number" id="credit-amount" step="0.01" min="0.01" placeholder="0.00" required
@@ -237,12 +314,12 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label for="date-borrowed" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date Borrowed</label>
+                            <label id="date-borrowed-label" for="date-borrowed" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date Borrowed</label>
                             <input type="date" id="date-borrowed" required
                                 class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div>
-                            <label for="due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Pay Back By</label>
+                            <label for="due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Due Date</label>
                             <input type="date" id="due-date"
                                 class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
@@ -254,8 +331,8 @@
                             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
-                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm shadow-indigo-500/25 transition cursor-pointer">
-                        Save Credit
+                    <button type="submit" id="save-credit-btn" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm shadow-indigo-500/25 transition cursor-pointer">
+                        Save Borrowed Credit
                     </button>
                 </form>
             </div>
@@ -263,16 +340,37 @@
 
         <!-- 3. Dedicated People Page View -->
         <section id="people-page-section" class="hidden space-y-4">
-            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
-                <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">People Page</p>
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Friends &amp; Balances</h2>
-                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Add more credit, manage balances, UPI quick-pay, and individual credits per friend</p>
+            <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">People Page</p>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Friends &amp; Balances</h2>
+                        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Search, sort, add money, send WhatsApp reminders, or inspect credits per friend</p>
+                    </div>
+                </div>
+
+                <!-- Search & Sort Controls on People Page -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                    <div class="sm:col-span-2 relative">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+                        <input type="search" id="people-search-input" placeholder="Search friend name, UPI, or note..."
+                            class="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="people-sort-select" class="sr-only">Sort Friends</label>
+                        <select id="people-sort-select" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                            <option value="overdue">Sort: Overdue First</option>
+                            <option value="highest">Sort: Highest Balance</option>
+                            <option value="az">Sort: A – Z</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div id="people-page-container" class="space-y-3"></div>
         </section>
     </main>
 
-    <!-- Bottom Navigation Bar With Home, People & Summary Buttons -->
+    <!-- Bottom Navigation Bar With Home, People (Badge) & Summary (Overdue Dot) Buttons -->
     <nav aria-label="Primary Navigation" class="fixed bottom-0 inset-x-0 z-40 bg-slate-100/95 dark:bg-zinc-950/95 backdrop-blur-md border-t border-slate-200 dark:border-zinc-800 shadow-lg">
         <div class="max-w-lg mx-auto px-3 h-16 grid grid-cols-3 gap-2 items-center">
             <button type="button" id="nav-home-btn" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-sm shadow-indigo-500/30 transition cursor-pointer">
@@ -282,17 +380,21 @@
                 <span>Home</span>
             </button>
 
-            <button type="button" id="nav-people-btn" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer">
+            <button type="button" id="nav-people-btn" class="relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer">
                 <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
                 <span>People</span>
+                <span id="nav-people-badge" class="hidden ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-indigo-500/20 text-indigo-400">0</span>
             </button>
 
-            <button type="button" id="nav-summary-btn" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
+            <button type="button" id="nav-summary-btn" class="relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer">
+                <span class="relative inline-flex">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span id="nav-overdue-dot" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-slate-100 dark:ring-zinc-950"></span>
+                </span>
                 <span>Summary</span>
             </button>
         </div>
@@ -364,7 +466,7 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Credit Entry</h3>
-                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Update borrowed amount, paid balance, or dates</p>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Update type, amount, paid balance, or dates</p>
                 </div>
                 <button type="button" id="close-edit-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -373,10 +475,19 @@
 
             <form id="edit-form" class="space-y-4">
                 <input type="hidden" id="edit-id">
-                <div>
-                    <label for="edit-friend-name" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Friend's Name</label>
-                    <input type="text" id="edit-friend-name" required
-                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="edit-friend-name" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Friend's Name</label>
+                        <input type="text" id="edit-friend-name" required
+                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="edit-credit-type" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Direction</label>
+                        <select id="edit-credit-type" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="borrowed">You Borrowed</option>
+                            <option value="lent">You Lent</option>
+                        </select>
+                    </div>
                 </div>
                 <div>
                     <label for="edit-friend-upi" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">UPI ID / Phone</label>
@@ -385,7 +496,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="edit-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Total Borrowed Amount</label>
+                        <label for="edit-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Total Amount</label>
                         <input type="number" id="edit-amount" step="0.01" min="0.01" required
                             class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
@@ -397,12 +508,12 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="edit-date-borrowed" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date Borrowed</label>
+                        <label for="edit-date-borrowed" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date</label>
                         <input type="date" id="edit-date-borrowed" required
                             class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <label for="edit-due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Pay Back By</label>
+                        <label for="edit-due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Due Date</label>
                         <input type="date" id="edit-due-date"
                             class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
@@ -420,7 +531,7 @@
         </div>
     </div>
 
-    <!-- 6. Custom Confirmation Modal (Replaces window.confirm) -->
+    <!-- 6. Custom Confirmation Modal -->
     <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
         <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-sm w-full p-6 border border-slate-200 dark:border-zinc-800 shadow-2xl">
             <h3 id="confirm-title" class="text-base font-bold text-slate-900 dark:text-white">Are you sure?</h3>
@@ -464,7 +575,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="edit-friend-entry-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Borrowed Amount</label>
+                        <label for="edit-friend-entry-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Amount</label>
                         <input type="number" id="edit-friend-entry-amount" step="0.01" min="0.01" required
                             class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
@@ -488,7 +599,7 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 id="add-more-title" class="text-lg font-bold text-slate-900 dark:text-white">Add Credit</h3>
-                    <p id="add-more-subtitle" class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Add newly borrowed money to this friend</p>
+                    <p id="add-more-subtitle" class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Add new borrowed or lent entry for this friend</p>
                 </div>
                 <button type="button" id="close-add-more-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -498,7 +609,15 @@
             <form id="add-more-form" class="space-y-4">
                 <input type="hidden" id="add-more-friend-name">
                 <div>
-                    <label for="add-more-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Amount Borrowed</label>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Transaction Type</label>
+                    <select id="add-more-type" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="borrowed">You Borrowed (You Owe Friend)</option>
+                        <option value="lent">You Lent (Friend Owes You)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="add-more-amount" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Amount</label>
                     <div class="relative">
                         <span id="add-more-currency-prefix" class="absolute inset-y-0 left-3.5 flex items-center text-sm font-bold text-slate-500 dark:text-zinc-400 pointer-events-none">₹</span>
                         <input type="number" id="add-more-amount" step="0.01" min="0.01" placeholder="0.00" required
@@ -508,12 +627,12 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="add-more-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date Borrowed</label>
+                        <label for="add-more-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Date</label>
                         <input type="date" id="add-more-date" required
                             class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <label for="add-more-due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Pay Back By</label>
+                        <label for="add-more-due-date" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Due Date</label>
                         <input type="date" id="add-more-due-date"
                             class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
@@ -530,6 +649,61 @@
                     <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition cursor-pointer">Add Money</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- 9. Biometric & PIN Security Settings Modal -->
+    <div id="security-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-zinc-800 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Biometric &amp; PIN App Lock</h3>
+                        <p class="text-xs text-slate-500 dark:text-zinc-400">Protect your credit records locally</p>
+                    </div>
+                </div>
+                <button type="button" id="close-security-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-800 dark:text-zinc-200 block">Lock Status</span>
+                        <span id="security-status-text" class="text-[11px] text-slate-500 dark:text-zinc-400">Disabled</span>
+                    </div>
+                    <button type="button" id="lock-now-btn" class="hidden px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold cursor-pointer">
+                        Lock Now
+                    </button>
+                </div>
+
+                <div>
+                    <label for="setup-pin-input" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">4-Digit Backup PIN <span class="font-normal text-slate-400">(Required)</span></label>
+                    <input type="password" id="setup-pin-input" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="Enter 4 digits (e.g. 1234)"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-sm font-bold tracking-widest text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="flex flex-col gap-2 pt-1">
+                    <button type="button" id="enable-biometric-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+                        </svg>
+                        <span>Enable Fingerprint / Face Lock + PIN</span>
+                    </button>
+                    <button type="button" id="enable-pin-only-btn" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-semibold text-xs sm:text-sm transition cursor-pointer">
+                        Save 4-Digit PIN Only
+                    </button>
+                    <button type="button" id="disable-lock-btn" class="hidden w-full py-2 px-4 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 font-semibold text-xs transition cursor-pointer">
+                        Disable App Lock
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -552,7 +726,7 @@
                         display: 'standalone',
                         background_color: '#000000',
                         theme_color: '#000000',
-                        description: 'Track money borrowed from friends offline with UPI quick-pay and backups.',
+                        description: 'Track money borrowed & lent with friends offline with UPI, WhatsApp, and Biometric Lock.',
                         icons: [
                             { src: iconUrl, sizes: '192x192', type: 'image/svg+xml' },
                             { src: iconUrl, sizes: '512x512', type: 'image/svg+xml' }
@@ -566,7 +740,7 @@
 
                     if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
                         const swCode = `
-                            const CACHE_NAME = 'friendcredit-cache-v1';
+                            const CACHE_NAME = 'friendcredit-cache-v2';
                             self.addEventListener('install', event => {
                                 event.waitUntil(
                                     caches.open(CACHE_NAME).then(cache => cache.addAll([self.registration.scope]))
@@ -596,6 +770,7 @@
             const SETTINGS_KEY = 'friendcredit_settings_v1';
             const FRIENDS_META_KEY = 'friendcredit_friends_meta_v1';
             const BACKUP_META_KEY = 'friendcredit_backup_meta_v1';
+            const SECURITY_KEY = 'friendcredit_security_v1';
 
             let credits = [];
             let friendsMeta = {};
@@ -607,19 +782,209 @@
                 lastBackupAt: null,
                 dismissedUntil: 0
             };
+            let securityConfig = {
+                enabled: false,
+                pin: '',
+                biometricEnabled: false,
+                credentialId: ''
+            };
+
             let activePage = 'home'; // 'home' | 'people' | 'summary'
+            let peopleSearchQuery = '';
+            let peopleSortOrder = 'overdue'; // 'overdue' | 'highest' | 'az'
             let expandedFriends = new Set();
             let confirmCallback = null;
+            let currentPinBuffer = '';
 
             // =========================================================================
-            // RENDERING: NAVIGATION & VIEWS (HOME, PEOPLE & SUMMARY PAGE)
+            // BIOMETRIC (WEBAUTHN PLATFORM AUTHENTICATOR) & 4-DIGIT PIN LOCK
+            // =========================================================================
+            function loadSecurityConfig() {
+                try {
+                    const saved = localStorage.getItem(SECURITY_KEY);
+                    if (saved) {
+                        securityConfig = { ...securityConfig, ...JSON.parse(saved) };
+                    }
+                } catch (e) {}
+            }
+
+            function saveSecurityConfig() {
+                try {
+                    localStorage.setItem(SECURITY_KEY, JSON.stringify(securityConfig));
+                } catch (e) {}
+                updateSecurityUI();
+            }
+
+            function bufferToBase64(buf) {
+                return btoa(String.fromCharCode(...new Uint8Array(buf)));
+            }
+
+            function base64ToBuffer(b64) {
+                const bin = atob(b64);
+                const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                return bytes.buffer;
+            }
+
+            async function registerDeviceBiometrics() {
+                if (!window.PublicKeyCredential) {
+                    throw new Error('Biometrics not supported in this browser.');
+                }
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                const userId = new Uint8Array(16);
+                window.crypto.getRandomValues(userId);
+
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge,
+                        rp: { name: 'FriendCredit' },
+                        user: {
+                            id: userId,
+                            name: 'friendcredit-owner',
+                            displayName: 'FriendCredit Owner'
+                        },
+                        pubKeyCredParams: [
+                            { type: 'public-key', alg: -7 },
+                            { type: 'public-key', alg: -257 }
+                        ],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required'
+                        },
+                        timeout: 60000
+                    }
+                });
+                return bufferToBase64(credential.rawId);
+            }
+
+            async function verifyDeviceBiometrics() {
+                if (!window.PublicKeyCredential || !securityConfig.biometricEnabled || !securityConfig.credentialId) {
+                    return false;
+                }
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+
+                const assertion = await navigator.credentials.get({
+                    publicKey: {
+                        challenge,
+                        allowCredentials: [{
+                            type: 'public-key',
+                            id: base64ToBuffer(securityConfig.credentialId),
+                            transports: ['internal']
+                        }],
+                        userVerification: 'required',
+                        timeout: 60000
+                    }
+                });
+                return Boolean(assertion);
+            }
+
+            function updateSecurityUI() {
+                const icon = document.getElementById('header-lock-icon');
+                const label = document.getElementById('header-lock-label');
+                const statusText = document.getElementById('security-status-text');
+                const lockNowBtn = document.getElementById('lock-now-btn');
+                const disableBtn = document.getElementById('disable-lock-btn');
+
+                if (securityConfig.enabled) {
+                    icon.classList.remove('text-slate-500', 'dark:text-zinc-400');
+                    icon.classList.add('text-emerald-500');
+                    label.textContent = securityConfig.biometricEnabled ? 'Bio Lock' : 'PIN Lock';
+                    statusText.textContent = securityConfig.biometricEnabled
+                        ? 'Active (Fingerprint / Face Unlock + 4-Digit PIN)'
+                        : 'Active (4-Digit PIN)';
+                    lockNowBtn.classList.remove('hidden');
+                    disableBtn.classList.remove('hidden');
+                } else {
+                    icon.classList.add('text-slate-500', 'dark:text-zinc-400');
+                    icon.classList.remove('text-emerald-500');
+                    label.textContent = 'Lock';
+                    statusText.textContent = 'Disabled';
+                    lockNowBtn.classList.add('hidden');
+                    disableBtn.classList.add('hidden');
+                }
+            }
+
+            function updatePinDots() {
+                const dots = document.querySelectorAll('#pin-dots span');
+                dots.forEach((dot, idx) => {
+                    if (idx < currentPinBuffer.length) {
+                        dot.classList.remove('border-zinc-600');
+                        dot.classList.add('bg-indigo-500', 'border-indigo-500', 'scale-110');
+                    } else {
+                        dot.classList.add('border-zinc-600');
+                        dot.classList.remove('bg-indigo-500', 'border-indigo-500', 'scale-110');
+                    }
+                });
+            }
+
+            function unlockApp() {
+                currentPinBuffer = '';
+                updatePinDots();
+                document.getElementById('lock-error-msg').textContent = '';
+                const screen = document.getElementById('app-lock-screen');
+                screen.classList.add('hidden');
+                screen.classList.remove('flex');
+            }
+
+            function lockApp(autoTriggerBiometric = true) {
+                if (!securityConfig.enabled || !securityConfig.pin) return;
+                currentPinBuffer = '';
+                updatePinDots();
+                document.getElementById('lock-error-msg').textContent = '';
+
+                const bioBtn = document.getElementById('biometric-trigger-btn');
+                const sub = document.getElementById('lock-screen-subtitle');
+                if (securityConfig.biometricEnabled) {
+                    bioBtn.classList.remove('invisible');
+                    sub.textContent = 'Use Fingerprint / Face ID or enter your 4-digit PIN';
+                } else {
+                    bioBtn.classList.add('invisible');
+                    sub.textContent = 'Enter your 4-digit PIN to unlock';
+                }
+
+                const screen = document.getElementById('app-lock-screen');
+                screen.classList.remove('hidden');
+                screen.classList.add('flex');
+
+                if (autoTriggerBiometric && securityConfig.biometricEnabled) {
+                    setTimeout(() => {
+                        verifyDeviceBiometrics()
+                            .then(ok => { if (ok) unlockApp(); })
+                            .catch(() => {});
+                    }, 250);
+                }
+            }
+
+            function handlePinDigit(digit) {
+                if (currentPinBuffer.length >= 4) return;
+                currentPinBuffer += digit;
+                updatePinDots();
+                document.getElementById('lock-error-msg').textContent = '';
+
+                if (currentPinBuffer.length === 4) {
+                    if (currentPinBuffer === securityConfig.pin) {
+                        unlockApp();
+                    } else {
+                        document.getElementById('lock-error-msg').textContent = 'Incorrect PIN. Try again.';
+                        setTimeout(() => {
+                            currentPinBuffer = '';
+                            updatePinDots();
+                        }, 300);
+                    }
+                }
+            }
+
+            // =========================================================================
+            // NAVIGATION & BADGE COUNTS
             // =========================================================================
             function updateNavBarUI() {
                 const homeBtn = document.getElementById('nav-home-btn');
                 const peopleBtn = document.getElementById('nav-people-btn');
                 const summaryBtn = document.getElementById('nav-summary-btn');
-                const activeClasses = 'flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-sm shadow-indigo-500/30 transition cursor-pointer';
-                const inactiveClasses = 'flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer';
+                const activeClasses = 'relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-sm shadow-indigo-500/30 transition cursor-pointer';
+                const inactiveClasses = 'relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-200/70 dark:hover:bg-zinc-900 transition cursor-pointer';
 
                 homeBtn.className = activePage === 'home' ? activeClasses : inactiveClasses;
                 peopleBtn.className = activePage === 'people' ? activeClasses : inactiveClasses;
@@ -686,6 +1051,10 @@
                 } finally {
                     document.body.removeChild(textarea);
                 }
+            }
+
+            function getEntryType(entry) {
+                return entry.type === 'lent' ? 'lent' : 'borrowed';
             }
 
             function getEntryPaidAmount(entry) {
@@ -823,7 +1192,6 @@
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(credits));
                 } catch (err) {
-                    console.error('Failed to save credits:', err);
                     showToast('Storage error: Could not save data locally.', 'error');
                 }
             }
@@ -831,25 +1199,19 @@
             function saveFriendsMeta() {
                 try {
                     localStorage.setItem(FRIENDS_META_KEY, JSON.stringify(friendsMeta));
-                } catch (err) {
-                    console.error('Failed to save friends metadata:', err);
-                }
+                } catch (err) {}
             }
 
             function saveSettings() {
                 try {
                     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-                } catch (err) {
-                    console.error('Failed to save settings:', err);
-                }
+                } catch (err) {}
             }
 
             function saveBackupMeta() {
                 try {
                     localStorage.setItem(BACKUP_META_KEY, JSON.stringify(backupMeta));
-                } catch (err) {
-                    console.error('Failed to save backup metadata:', err);
-                }
+                } catch (err) {}
             }
 
             // =========================================================================
@@ -916,11 +1278,13 @@
             }
 
             // =========================================================================
-            // RENDERING: SUMMARY CARDS, AUTOCOMPLETE & QUICK-PICK CHIPS
+            // RENDERING: SUMMARY CARDS, NAV BADGES, AUTOCOMPLETE & CHIPS
             // =========================================================================
             function renderSummaryAndDatalist() {
                 let totalBorrowed = 0;
-                let totalRepaid = 0;
+                let totalBorrowedPaid = 0;
+                let totalLentOutstanding = 0;
+                let lentFriendsSet = new Set();
                 let overdueAmount = 0;
                 let overdueCount = 0;
                 const activeFriendsSet = new Set();
@@ -928,13 +1292,19 @@
                 const today = getTodayISO();
 
                 credits.forEach(entry => {
+                    const type = getEntryType(entry);
                     const amt = roundMoney(entry.amount);
                     const paid = getEntryPaidAmount(entry);
                     const rem = getEntryRemaining(entry);
                     const cleanName = (entry.friendName || '').trim();
 
-                    totalBorrowed = roundMoney(totalBorrowed + amt);
-                    totalRepaid = roundMoney(totalRepaid + paid);
+                    if (type === 'borrowed') {
+                        totalBorrowed = roundMoney(totalBorrowed + amt);
+                        totalBorrowedPaid = roundMoney(totalBorrowedPaid + paid);
+                    } else {
+                        totalLentOutstanding = roundMoney(totalLentOutstanding + rem);
+                        if (cleanName && rem > 0) lentFriendsSet.add(cleanName.toLowerCase());
+                    }
 
                     if (isEntryOverdue(entry, today)) {
                         overdueCount += 1;
@@ -949,14 +1319,36 @@
                     }
                 });
 
-                const outstanding = roundMoney(totalBorrowed - totalRepaid);
+                const borrowedOutstanding = roundMoney(totalBorrowed - totalBorrowedPaid);
 
-                document.getElementById('stat-outstanding').textContent = formatMoney(outstanding);
-                document.getElementById('stat-outstanding-sub').textContent = outstanding > 0
-                    ? `Across ${activeFriendsSet.size} friend${activeFriendsSet.size === 1 ? '' : 's'}`
+                // Update Bottom Navigation Badges
+                const peopleBadge = document.getElementById('nav-people-badge');
+                if (activeFriendsSet.size > 0) {
+                    peopleBadge.textContent = activeFriendsSet.size;
+                    peopleBadge.classList.remove('hidden');
+                } else {
+                    peopleBadge.classList.add('hidden');
+                }
+
+                const overdueDot = document.getElementById('nav-overdue-dot');
+                if (overdueCount > 0) {
+                    overdueDot.classList.remove('hidden');
+                } else {
+                    overdueDot.classList.add('hidden');
+                }
+
+                // Summary Cards
+                document.getElementById('stat-outstanding').textContent = formatMoney(borrowedOutstanding);
+                document.getElementById('stat-outstanding-sub').textContent = borrowedOutstanding > 0
+                    ? `Pending dues you owe`
                     : 'Zero pending dues';
 
-                document.getElementById('stat-repaid').textContent = formatMoney(totalRepaid);
+                document.getElementById('stat-lent-outstanding').textContent = formatMoney(totalLentOutstanding);
+                document.getElementById('stat-lent-sub').textContent = totalLentOutstanding > 0
+                    ? `Across ${lentFriendsSet.size} friend${lentFriendsSet.size === 1 ? '' : 's'}`
+                    : 'No pending lent dues';
+
+                document.getElementById('stat-repaid').textContent = formatMoney(totalBorrowedPaid);
                 document.getElementById('stat-repaid-sub').textContent = `Out of ${formatMoney(totalBorrowed)} borrowed`;
 
                 document.getElementById('stat-friends-count').textContent = activeFriendsSet.size;
@@ -969,6 +1361,7 @@
                     ? `${overdueCount} overdue entr${overdueCount === 1 ? 'y' : 'ies'}`
                     : 'No overdue dues';
 
+                // Datalist & Quick-Pick Chips
                 const sortedFriends = Array.from(allFriendsMap.values()).sort((a, b) => a.localeCompare(b));
                 const datalist = document.getElementById('friends-datalist');
                 datalist.innerHTML = '';
@@ -995,7 +1388,7 @@
             }
 
             // =========================================================================
-            // RENDERING: NAVIGATION & VIEWS (HOME & PEOPLE PAGE)
+            // RENDERING: PEOPLE PAGE (WITH SEARCH, SORT, WHATSAPP & LENT/BORROWED)
             // =========================================================================
             function getStatusBadgeHTML(status, overdue = false, dueSoon = false) {
                 if (status === 'settled') {
@@ -1033,6 +1426,43 @@
                 return `upi://pay?${params.toString()}`;
             }
 
+            function buildFriendSummaryText(group) {
+                const lines = [
+                    `FriendCredit Summary — ${group.name}:`
+                ];
+                if (group.borrowedOwed > 0) {
+                    lines.push(`• I owe ${group.name}: ${formatMoney(group.borrowedOwed)}`);
+                }
+                if (group.lentOwed > 0) {
+                    lines.push(`• ${group.name} owes me: ${formatMoney(group.lentOwed)}`);
+                }
+                if (group.borrowedOwed === 0 && group.lentOwed === 0) {
+                    lines.push(`• All settled! (₹0 pending)`);
+                }
+                group.entries.forEach(e => {
+                    const rem = getEntryRemaining(e);
+                    const dir = getEntryType(e) === 'lent' ? 'Lent' : 'Borrowed';
+                    const label = e.reason || 'Personal Credit';
+                    lines.push(`  - [${dir}] ${label} (${formatDateDisplay(e.dateBorrowed)}): ${rem > 0 ? `${formatMoney(rem)} due` : 'Settled'}`);
+                });
+                if (group.upiId) {
+                    lines.push(`UPI: ${group.upiId}`);
+                }
+                return lines.join('\n');
+            }
+
+            function buildWhatsAppUrl(group) {
+                const text = buildFriendSummaryText(group);
+                const digitsOnly = (group.upiId || '').replace(/\D/g, '');
+                if (digitsOnly.length === 10) {
+                    return `https://wa.me/91${digitsOnly}?text=${encodeURIComponent(text)}`;
+                }
+                if (digitsOnly.length > 10 && digitsOnly.length <= 15) {
+                    return `https://wa.me/${digitsOnly}?text=${encodeURIComponent(text)}`;
+                }
+                return `https://wa.me/?text=${encodeURIComponent(text)}`;
+            }
+
             function renderViews() {
                 updateNavBarUI();
                 const summarySection = document.getElementById('summary-page-section');
@@ -1063,40 +1493,66 @@
                 credits.forEach(entry => {
                     const displayName = entry.friendName.trim();
                     const key = displayName.toLowerCase();
+                    const type = getEntryType(entry);
                     if (!groupsMap.has(key)) {
                         groupsMap.set(key, {
                             name: displayName,
                             key: key,
                             upiId: getFriendUpi(displayName),
                             entries: [],
-                            totalBorrowed: 0,
+                            totalVolume: 0,
                             totalPaid: 0,
-                            totalOwed: 0,
+                            totalPending: 0,
+                            borrowedOwed: 0,
+                            lentOwed: 0,
                             hasOverdue: false
                         });
                     }
                     const grp = groupsMap.get(key);
+                    const rem = getEntryRemaining(entry);
                     grp.entries.push(entry);
-                    grp.totalBorrowed = roundMoney(grp.totalBorrowed + Number(entry.amount));
+                    grp.totalVolume = roundMoney(grp.totalVolume + Number(entry.amount));
                     grp.totalPaid = roundMoney(grp.totalPaid + getEntryPaidAmount(entry));
-                    grp.totalOwed = roundMoney(grp.totalOwed + getEntryRemaining(entry));
+                    grp.totalPending = roundMoney(grp.totalPending + rem);
+                    if (type === 'lent') {
+                        grp.lentOwed = roundMoney(grp.lentOwed + rem);
+                    } else {
+                        grp.borrowedOwed = roundMoney(grp.borrowedOwed + rem);
+                    }
                     if (isEntryOverdue(entry, today)) {
                         grp.hasOverdue = true;
                     }
                 });
 
-                const groups = Array.from(groupsMap.values());
+                let groups = Array.from(groupsMap.values());
 
-                groups.sort((a, b) => {
-                    if (a.hasOverdue !== b.hasOverdue) return a.hasOverdue ? -1 : 1;
-                    if (b.totalOwed !== a.totalOwed) return b.totalOwed - a.totalOwed;
-                    return a.name.localeCompare(b.name);
-                });
+                // Filter by Search Query on People Page
+                const q = peopleSearchQuery.trim().toLowerCase();
+                if (q) {
+                    groups = groups.filter(g =>
+                        g.name.toLowerCase().includes(q) ||
+                        (g.upiId && g.upiId.toLowerCase().includes(q)) ||
+                        g.entries.some(e => (e.reason || '').toLowerCase().includes(q))
+                    );
+                }
+
+                // Sort People Cards
+                if (peopleSortOrder === 'highest') {
+                    groups.sort((a, b) => b.totalPending - a.totalPending || a.name.localeCompare(b.name));
+                } else if (peopleSortOrder === 'az') {
+                    groups.sort((a, b) => a.name.localeCompare(b.name));
+                } else {
+                    groups.sort((a, b) => {
+                        if (a.hasOverdue !== b.hasOverdue) return a.hasOverdue ? -1 : 1;
+                        if (b.totalPending !== a.totalPending) return b.totalPending - a.totalPending;
+                        return a.name.localeCompare(b.name);
+                    });
+                }
 
                 if (groups.length === 0) {
                     container.innerHTML = `
                         <div class="bg-white dark:bg-zinc-900/90 rounded-2xl p-8 text-center border border-slate-200/80 dark:border-zinc-800">
-                            <p class="text-sm font-medium text-slate-500 dark:text-zinc-400">No friends added yet.</p>
+                            <p class="text-sm font-medium text-slate-500 dark:text-zinc-400">${q ? 'No matching friends found.' : 'No friends added yet.'}</p>
                         </div>
                     `;
                     return;
@@ -1104,13 +1560,14 @@
 
                 container.innerHTML = groups.map(group => {
                     const sortedEntries = [...group.entries].sort((a, b) => b.dateBorrowed.localeCompare(a.dateBorrowed));
-                    const isAllSettled = group.totalOwed <= 0;
-                    const progressPct = group.totalBorrowed > 0
-                        ? Math.min(100, Math.round((group.totalPaid / group.totalBorrowed) * 100))
+                    const isAllSettled = group.totalPending <= 0;
+                    const progressPct = group.totalVolume > 0
+                        ? Math.min(100, Math.round((group.totalPaid / group.totalVolume) * 100))
                         : 100;
 
                     const initials = group.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-                    const upiHref = group.upiId ? buildUpiDeepLink(group.upiId, group.name, group.totalOwed) : '';
+                    const upiHref = (group.upiId && group.borrowedOwed > 0) ? buildUpiDeepLink(group.upiId, group.name, group.borrowedOwed) : '';
+                    const whatsappHref = buildWhatsAppUrl(group);
                     const isExpanded = expandedFriends.has(group.key);
 
                     return `
@@ -1131,10 +1588,11 @@
                                                     : `<span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">${group.entries.length} IOU${group.entries.length > 1 ? 's' : ''}</span>`
                                             }
                                         </div>
-                                        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                                            Borrowed <span class="font-semibold text-slate-700 dark:text-zinc-200">${formatMoney(group.totalBorrowed)}</span>
-                                            &bull; Paid <span class="font-semibold text-emerald-600 dark:text-emerald-400">${formatMoney(group.totalPaid)}</span>
-                                        </p>
+                                        <div class="text-xs text-slate-500 dark:text-zinc-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                                            ${group.borrowedOwed > 0 ? `<span>You Owe: <strong class="text-indigo-600 dark:text-indigo-400">${formatMoney(group.borrowedOwed)}</strong></span>` : ''}
+                                            ${group.lentOwed > 0 ? `<span>Owes You: <strong class="text-teal-600 dark:text-teal-400">${formatMoney(group.lentOwed)}</strong></span>` : ''}
+                                            ${isAllSettled ? `<span>Total Settled: <strong class="text-emerald-600 dark:text-emerald-400">${formatMoney(group.totalPaid)}</strong></span>` : ''}
+                                        </div>
                                         ${group.upiId ? `
                                         <div class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 text-[11px] text-slate-600 dark:text-zinc-300">
                                             <span class="font-mono">${escapeHTML(group.upiId)}</span>
@@ -1149,8 +1607,8 @@
 
                                 <div class="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 dark:border-zinc-800">
                                     <div class="text-left sm:text-right">
-                                        <span class="text-[11px] font-medium text-slate-400 dark:text-zinc-500 block">Remaining Owed</span>
-                                        <span class="text-lg sm:text-xl font-extrabold ${isAllSettled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}">${formatMoney(group.totalOwed)}</span>
+                                        <span class="text-[11px] font-medium text-slate-400 dark:text-zinc-500 block">Pending Balance</span>
+                                        <span class="text-lg sm:text-xl font-extrabold ${isAllSettled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}">${formatMoney(group.totalPending)}</span>
                                     </div>
                                     <button type="button" data-action="edit-friend" data-friend-key="${escapeHTML(group.key)}" title="Edit friend details or money"
                                         class="mt-1.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 dark:bg-zinc-800 dark:hover:bg-indigo-500/20 text-slate-700 hover:text-indigo-600 dark:text-zinc-300 dark:hover:text-indigo-300 text-xs font-semibold transition cursor-pointer">
@@ -1168,28 +1626,32 @@
 
                             <div class="mt-4 flex flex-wrap items-center gap-2">
                                 <button type="button" data-action="add-more-friend" data-friend-key="${escapeHTML(group.key)}"
-                                    class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-500/25 text-xs font-bold transition cursor-pointer">
+                                    class="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-500/25 text-xs font-bold transition cursor-pointer">
                                     + Add Money
                                 </button>
                                 ${!isAllSettled ? `
-                                ${group.upiId ? `
+                                ${upiHref ? `
                                 <a href="${escapeHTML(upiHref)}"
-                                    class="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition">
-                                    Pay via UPI (${formatMoney(group.totalOwed)})
+                                    class="text-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition">
+                                    Pay via UPI (${formatMoney(group.borrowedOwed)})
                                 </a>
                                 ` : ''}
                                 <button type="button" data-action="repay-friend" data-friend-key="${escapeHTML(group.key)}"
-                                    class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-semibold transition cursor-pointer">
-                                    Record Partial Payment
+                                    class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-semibold transition cursor-pointer">
+                                    Record Payment
                                 </button>
                                 <button type="button" data-action="settle-friend" data-friend-key="${escapeHTML(group.key)}"
-                                    class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer">
+                                    class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition cursor-pointer">
                                     ✓ Settle All
                                 </button>
                                 ` : ''}
+                                <a href="${escapeHTML(whatsappHref)}" target="_blank" rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 text-xs font-semibold transition">
+                                    WhatsApp
+                                </a>
                                 <button type="button" data-action="share-friend" data-friend-key="${escapeHTML(group.key)}"
                                     class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold transition cursor-pointer" title="Copy or share summary">
-                                    Share Summary
+                                    Share
                                 </button>
                                 <button type="button" data-action="toggle-friend-entries" data-friend-key="${escapeHTML(group.key)}" aria-expanded="${isExpanded}"
                                     class="ml-auto inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-semibold transition cursor-pointer">
@@ -1204,6 +1666,7 @@
                         <div class="${isExpanded ? 'block' : 'hidden'} bg-slate-50/70 dark:bg-zinc-950/70 border-t border-slate-100 dark:border-zinc-800/80 divide-y divide-slate-100 dark:divide-zinc-800/80">
                             ${sortedEntries.map(entry => {
                                 const status = getEntryStatus(entry);
+                                const type = getEntryType(entry);
                                 const rem = getEntryRemaining(entry);
                                 const paid = getEntryPaidAmount(entry);
                                 const overdue = isEntryOverdue(entry, today);
@@ -1213,11 +1676,14 @@
                                 <div class="px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                     <div class="space-y-0.5">
                                         <div class="flex flex-wrap items-center gap-2">
+                                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${type === 'lent' ? 'bg-teal-500/15 text-teal-400 border border-teal-500/25' : 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/25'}">
+                                                ${type === 'lent' ? 'You Lent' : 'Borrowed'}
+                                            </span>
                                             <span class="font-semibold text-slate-800 dark:text-zinc-200">${escapeHTML(entry.reason || 'Personal Credit')}</span>
                                             ${getStatusBadgeHTML(status, overdue, dueSoon)}
                                         </div>
                                         <div class="text-slate-500 dark:text-zinc-400 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                            <span>Borrowed ${formatDateDisplay(entry.dateBorrowed)}</span>
+                                            <span>${type === 'lent' ? 'Lent' : 'Borrowed'} ${formatDateDisplay(entry.dateBorrowed)}</span>
                                             ${entry.dueDate ? `<span class="${overdue ? 'text-rose-500 font-semibold' : dueSoon ? 'text-orange-400 font-medium' : ''}">&bull; Due ${formatDateDisplay(entry.dueDate)}</span>` : ''}
                                             ${paid > 0 && status !== 'settled' ? `<span class="text-sky-600 dark:text-sky-400 font-medium">&bull; Paid ${formatMoney(paid)}</span>` : ''}
                                         </div>
@@ -1232,7 +1698,7 @@
                                             ${status !== 'settled' ? `
                                             <button type="button" data-action="repay-entry" data-id="${entry.id}" title="Log Payment"
                                                 class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-semibold transition cursor-pointer">
-                                                Pay
+                                                ${type === 'lent' ? 'Receive' : 'Pay'}
                                             </button>
                                             ` : `
                                             <button type="button" data-action="repay-entry" data-id="${entry.id}" title="View Payment History"
@@ -1266,10 +1732,38 @@
             }
 
             // =========================================================================
-            // CORE ACTIONS: ADD, ADD MORE TO FRIEND, REPAY, SETTLE, EDIT, DELETE
+            // CORE ACTIONS: BORROWED / LENT TOGGLE, ADD, ADD MORE, REPAY, SETTLE, EDIT
             // =========================================================================
+            function setCreditFormType(type) {
+                const isLent = type === 'lent';
+                document.getElementById('credit-type').value = isLent ? 'lent' : 'borrowed';
+                const borrowedBtn = document.getElementById('type-borrowed-btn');
+                const lentBtn = document.getElementById('type-lent-btn');
+
+                if (isLent) {
+                    lentBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-600 text-white shadow-xs transition cursor-pointer';
+                    borrowedBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer';
+                    document.getElementById('form-section-title').textContent = 'Add Money Lent';
+                    document.getElementById('form-section-subtitle').textContent = 'Log money you gave to a friend';
+                    document.getElementById('credit-amount-label').textContent = 'Amount Lent';
+                    document.getElementById('date-borrowed-label').textContent = 'Date Lent';
+                    document.getElementById('save-credit-btn').textContent = 'Save Lent Credit';
+                    document.getElementById('save-credit-btn').className = 'w-full py-3 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-sm shadow-sm shadow-teal-500/25 transition cursor-pointer';
+                } else {
+                    borrowedBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-xs transition cursor-pointer';
+                    lentBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer';
+                    document.getElementById('form-section-title').textContent = 'Add Borrowed Credit';
+                    document.getElementById('form-section-subtitle').textContent = 'Log money taken from a friend';
+                    document.getElementById('credit-amount-label').textContent = 'Amount Borrowed';
+                    document.getElementById('date-borrowed-label').textContent = 'Date Borrowed';
+                    document.getElementById('save-credit-btn').textContent = 'Save Borrowed Credit';
+                    document.getElementById('save-credit-btn').className = 'w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm shadow-indigo-500/25 transition cursor-pointer';
+                }
+            }
+
             function handleAddCredit(e) {
                 e.preventDefault();
+                const type = document.getElementById('credit-type').value === 'lent' ? 'lent' : 'borrowed';
                 const nameInput = document.getElementById('friend-name');
                 const upiInput = document.getElementById('friend-upi');
                 const amountInput = document.getElementById('credit-amount');
@@ -1289,7 +1783,7 @@
                     return;
                 }
                 if (isNaN(amount) || amount <= 0) {
-                    showToast('Please enter a valid borrowed amount.', 'error');
+                    showToast('Please enter a valid amount.', 'error');
                     return;
                 }
 
@@ -1301,6 +1795,7 @@
 
                 const newEntry = {
                     id: generateId(),
+                    type,
                     friendName,
                     upiId: upiId || getFriendUpi(friendName),
                     amount,
@@ -1320,7 +1815,9 @@
                 reasonInput.value = '';
                 nameInput.value = '';
                 upiInput.value = '';
-                showToast(`Added ${formatMoney(amount)} credit from ${friendName}`);
+                showToast(type === 'lent'
+                    ? `Logged ${formatMoney(amount)} lent to ${friendName}`
+                    : `Added ${formatMoney(amount)} borrowed from ${friendName}`);
             }
 
             function openAddMoreModalForFriend(friendKey) {
@@ -1328,11 +1825,12 @@
                 if (friendEntries.length === 0) return;
 
                 const friendName = friendEntries[0].friendName.trim();
-                const currentOwed = roundMoney(friendEntries.reduce((sum, e) => sum + getEntryRemaining(e), 0));
+                const currentPending = roundMoney(friendEntries.reduce((sum, e) => sum + getEntryRemaining(e), 0));
 
                 document.getElementById('add-more-friend-name').value = friendName;
                 document.getElementById('add-more-title').textContent = `Add Money — ${friendName}`;
-                document.getElementById('add-more-subtitle').textContent = `Current balance owed: ${formatMoney(currentOwed)}`;
+                document.getElementById('add-more-subtitle').textContent = `Current pending balance: ${formatMoney(currentPending)}`;
+                document.getElementById('add-more-type').value = getEntryType(friendEntries[0]);
                 document.getElementById('add-more-amount').value = '';
                 document.getElementById('add-more-date').value = getTodayISO();
                 document.getElementById('add-more-due-date').value = '';
@@ -1353,18 +1851,20 @@
             function handleAddMoreSubmit(e) {
                 e.preventDefault();
                 const friendName = document.getElementById('add-more-friend-name').value.trim();
+                const type = document.getElementById('add-more-type').value === 'lent' ? 'lent' : 'borrowed';
                 const amount = roundMoney(parseFloat(document.getElementById('add-more-amount').value));
                 const dateBorrowed = document.getElementById('add-more-date').value || getTodayISO();
                 const dueDate = document.getElementById('add-more-due-date').value || '';
                 const reason = document.getElementById('add-more-reason').value.trim();
 
                 if (!friendName || isNaN(amount) || amount <= 0) {
-                    showToast('Please enter a valid borrowed amount.', 'error');
+                    showToast('Please enter a valid amount.', 'error');
                     return;
                 }
 
                 const newEntry = {
                     id: generateId(),
+                    type,
                     friendName,
                     upiId: getFriendUpi(friendName),
                     amount,
@@ -1379,7 +1879,7 @@
                 saveCredits();
                 renderAll();
                 closeAddMoreModal();
-                showToast(`Added ${formatMoney(amount)} more credit to ${friendName}`);
+                showToast(`Added ${formatMoney(amount)} to ${friendName}`);
             }
 
             function openRepayModalForEntry(entryId) {
@@ -1387,9 +1887,10 @@
                 if (!entry) return;
 
                 const rem = getEntryRemaining(entry);
+                const isLent = getEntryType(entry) === 'lent';
                 document.getElementById('repay-mode').value = 'entry';
                 document.getElementById('repay-target-id').value = entry.id;
-                document.getElementById('repay-modal-title').textContent = rem > 0 ? 'Record Repayment' : 'Payment History';
+                document.getElementById('repay-modal-title').textContent = rem > 0 ? (isLent ? 'Record Received Payment' : 'Record Repayment') : 'Payment History';
                 document.getElementById('repay-modal-subtitle').textContent = `${entry.friendName} — ${entry.reason || 'Personal Credit'}`;
                 document.getElementById('repay-remaining-display').textContent = formatMoney(rem);
 
@@ -1431,8 +1932,8 @@
 
                 document.getElementById('repay-mode').value = 'friend';
                 document.getElementById('repay-target-id').value = friendKey;
-                document.getElementById('repay-modal-title').textContent = 'Record Payment to Friend';
-                document.getElementById('repay-modal-subtitle').textContent = `Distributes payment across oldest dues to ${friendName}`;
+                document.getElementById('repay-modal-title').textContent = 'Record Payment';
+                document.getElementById('repay-modal-subtitle').textContent = `Distributes payment across oldest entries with ${friendName}`;
                 document.getElementById('repay-remaining-display').textContent = formatMoney(totalOwed);
 
                 const amountInput = document.getElementById('repay-amount');
@@ -1465,7 +1966,7 @@
                 const payNote = document.getElementById('repay-note').value.trim();
 
                 if (isNaN(payAmount) || payAmount <= 0) {
-                    showToast('Enter a valid repayment amount.', 'error');
+                    showToast('Enter a valid payment amount.', 'error');
                     return;
                 }
 
@@ -1486,7 +1987,7 @@
                     saveCredits();
                     renderAll();
                     closeRepayModal();
-                    showToast(`Recorded ${formatMoney(payAmount)} payment to ${entry.friendName}`);
+                    showToast(`Recorded ${formatMoney(payAmount)} payment with ${entry.friendName}`);
                 } else if (mode === 'friend') {
                     const friendEntries = credits
                         .filter(c => c.friendName.trim().toLowerCase() === targetId && getEntryRemaining(c) > 0)
@@ -1494,7 +1995,7 @@
 
                     const totalOwed = roundMoney(friendEntries.reduce((s, c) => s + getEntryRemaining(c), 0));
                     if (payAmount > totalOwed + 0.001) {
-                        showToast(`Amount cannot exceed total owed (${formatMoney(totalOwed)}).`, 'error');
+                        showToast(`Amount cannot exceed total pending (${formatMoney(totalOwed)}).`, 'error');
                         return;
                     }
 
@@ -1516,7 +2017,7 @@
                     renderAll();
                     closeRepayModal();
                     const displayFriend = friendEntries[0] ? friendEntries[0].friendName : 'friend';
-                    showToast(`Recorded ${formatMoney(payAmount)} payment to ${displayFriend}`);
+                    showToast(`Recorded ${formatMoney(payAmount)} payment with ${displayFriend}`);
                 }
             }
 
@@ -1529,7 +2030,7 @@
 
                 openConfirmModal(
                     `Settle All with ${friendName}?`,
-                    `This will mark all pending IOUs (${formatMoney(totalOwed)}) from ${friendName} as fully paid today.`,
+                    `This will mark all pending entries (${formatMoney(totalOwed)}) with ${friendName} as fully settled today.`,
                     'Settle All',
                     () => {
                         const today = getTodayISO();
@@ -1546,7 +2047,7 @@
                         });
                         saveCredits();
                         renderAll();
-                        showToast(`All dues with ${friendName} settled!`);
+                        showToast(`All entries with ${friendName} settled!`);
                     }
                 );
             }
@@ -1557,6 +2058,7 @@
 
                 document.getElementById('edit-id').value = entry.id;
                 document.getElementById('edit-friend-name').value = entry.friendName;
+                document.getElementById('edit-credit-type').value = getEntryType(entry);
                 document.getElementById('edit-friend-upi').value = getFriendUpi(entry.friendName) || entry.upiId || '';
                 document.getElementById('edit-amount').value = entry.amount;
                 document.getElementById('edit-paid-amount').value = getEntryPaidAmount(entry);
@@ -1599,6 +2101,7 @@
                 if (!entry) return;
 
                 const newName = document.getElementById('edit-friend-name').value.trim();
+                const newType = document.getElementById('edit-credit-type').value === 'lent' ? 'lent' : 'borrowed';
                 const newUpi = document.getElementById('edit-friend-upi').value.trim();
                 const newAmount = roundMoney(parseFloat(document.getElementById('edit-amount').value));
                 const newPaid = roundMoney(parseFloat(document.getElementById('edit-paid-amount').value));
@@ -1607,7 +2110,7 @@
                 const newReason = document.getElementById('edit-reason').value.trim();
 
                 if (!newName || isNaN(newAmount) || newAmount <= 0) {
-                    showToast('Please enter a valid friend name and borrowed amount.', 'error');
+                    showToast('Please enter a valid friend name and amount.', 'error');
                     return;
                 }
                 if (isNaN(newPaid) || newPaid < 0 || newPaid > newAmount + 0.001) {
@@ -1616,6 +2119,7 @@
                 }
 
                 entry.friendName = newName;
+                entry.type = newType;
                 entry.upiId = newUpi;
                 entry.amount = newAmount;
                 entry.dateBorrowed = newDate;
@@ -1652,7 +2156,8 @@
 
                 const select = document.getElementById('edit-friend-entry-select');
                 select.innerHTML = sorted.map(item => {
-                    const label = `${item.reason || 'Personal Credit'} (${formatDateDisplay(item.dateBorrowed)}) — Due ${formatMoney(getEntryRemaining(item))}`;
+                    const dir = getEntryType(item) === 'lent' ? 'Lent' : 'Borrowed';
+                    const label = `[${dir}] ${item.reason || 'Personal Credit'} (${formatDateDisplay(item.dateBorrowed)}) — Due ${formatMoney(getEntryRemaining(item))}`;
                     return `<option value="${item.id}">${escapeHTML(label)}</option>`;
                 }).join('');
 
@@ -1683,7 +2188,7 @@
                     return;
                 }
                 if (isNaN(newAmount) || newAmount <= 0) {
-                    showToast('Enter a valid borrowed amount.', 'error');
+                    showToast('Enter a valid amount.', 'error');
                     return;
                 }
                 if (isNaN(newPaid) || newPaid < 0 || newPaid > newAmount + 0.001) {
@@ -1722,7 +2227,7 @@
 
                 openConfirmModal(
                     'Delete Credit Entry?',
-                    `Delete the ${formatMoney(entry.amount)} entry from ${entry.friendName}? This cannot be undone.`,
+                    `Delete the ${formatMoney(entry.amount)} entry with ${entry.friendName}? This cannot be undone.`,
                     'Delete',
                     () => {
                         credits = credits.filter(c => c.id !== entryId);
@@ -1738,26 +2243,15 @@
                 if (friendEntries.length === 0) return;
 
                 const friendName = friendEntries[0].friendName.trim();
-                const totalBorrowed = roundMoney(friendEntries.reduce((s, e) => s + Number(e.amount), 0));
-                const totalPaid = roundMoney(friendEntries.reduce((s, e) => s + getEntryPaidAmount(e), 0));
-                const totalOwed = roundMoney(friendEntries.reduce((s, e) => s + getEntryRemaining(e), 0));
-                const upiId = getFriendUpi(friendName);
+                const group = {
+                    name: friendName,
+                    upiId: getFriendUpi(friendName),
+                    entries: friendEntries,
+                    borrowedOwed: roundMoney(friendEntries.filter(e => getEntryType(e) === 'borrowed').reduce((s, e) => s + getEntryRemaining(e), 0)),
+                    lentOwed: roundMoney(friendEntries.filter(e => getEntryType(e) === 'lent').reduce((s, e) => s + getEntryRemaining(e), 0))
+                };
 
-                const lines = [
-                    `Credit Summary for ${friendName}:`,
-                    `Total Borrowed: ${formatMoney(totalBorrowed)} | Repaid: ${formatMoney(totalPaid)}`,
-                    `Remaining Owed: ${formatMoney(totalOwed)}`,
-                    ...friendEntries.map(e => {
-                        const rem = getEntryRemaining(e);
-                        const label = e.reason || 'Personal Credit';
-                        return `• ${label} (${formatDateDisplay(e.dateBorrowed)}): ${rem > 0 ? `${formatMoney(rem)} due` : 'Settled'}`;
-                    })
-                ];
-                if (upiId) {
-                    lines.push(`UPI: ${upiId}`);
-                }
-
-                const summaryText = lines.join('\n');
+                const summaryText = buildFriendSummaryText(group);
                 if (navigator.share) {
                     navigator.share({
                         title: `FriendCredit — ${friendName}`,
@@ -1776,7 +2270,7 @@
             function buildBackupPayload() {
                 return {
                     app: 'FriendCredit',
-                    version: 2,
+                    version: 3,
                     exportedAt: new Date().toISOString(),
                     currency: settings.currency,
                     friendsMeta,
@@ -1811,13 +2305,14 @@
             }
 
             function exportCSV() {
-                const headers = ['ID', 'Friend Name', 'UPI ID', 'Amount Borrowed', 'Amount Paid', 'Remaining Balance', 'Status', 'Date Borrowed', 'Due Date', 'Reason'];
+                const headers = ['ID', 'Type', 'Friend Name', 'UPI ID', 'Amount', 'Amount Paid', 'Remaining Balance', 'Status', 'Date', 'Due Date', 'Reason'];
                 const rows = credits.map(c => {
                     const paid = getEntryPaidAmount(c);
                     const rem = getEntryRemaining(c);
                     const status = getEntryStatus(c);
                     return [
                         c.id,
+                        getEntryType(c),
                         c.friendName,
                         getFriendUpi(c.friendName) || c.upiId || '',
                         c.amount,
@@ -1858,6 +2353,7 @@
                             item && typeof item.friendName === 'string' && !isNaN(Number(item.amount))
                         ).map(item => ({
                             id: item.id || generateId(),
+                            type: item.type === 'lent' ? 'lent' : 'borrowed',
                             friendName: item.friendName.trim(),
                             upiId: item.upiId || '',
                             amount: roundMoney(item.amount),
@@ -1909,6 +2405,10 @@
             function initEventListeners() {
                 document.getElementById('date-borrowed').value = getTodayISO();
 
+                // You Borrowed / You Lent Toggle
+                document.getElementById('type-borrowed-btn').addEventListener('click', () => setCreditFormType('borrowed'));
+                document.getElementById('type-lent-btn').addEventListener('click', () => setCreditFormType('lent'));
+
                 // Add Credit Form
                 document.getElementById('add-credit-form').addEventListener('submit', handleAddCredit);
 
@@ -1932,6 +2432,16 @@
                     document.getElementById('credit-amount').focus();
                 });
 
+                // Search & Sort on People Page
+                document.getElementById('people-search-input').addEventListener('input', (e) => {
+                    peopleSearchQuery = e.target.value;
+                    renderViews();
+                });
+                document.getElementById('people-sort-select').addEventListener('change', (e) => {
+                    peopleSortOrder = e.target.value;
+                    renderViews();
+                });
+
                 // Currency Selector
                 document.getElementById('currency-select').addEventListener('change', (e) => {
                     settings.currency = e.target.value;
@@ -1945,6 +2455,90 @@
                     settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
                     saveSettings();
                     applyTheme();
+                });
+
+                // Security / Biometric Lock Modal & Lock Screen Keypad
+                const securityModal = document.getElementById('security-modal');
+                document.getElementById('security-settings-btn').addEventListener('click', () => {
+                    document.getElementById('setup-pin-input').value = securityConfig.pin || '';
+                    updateSecurityUI();
+                    securityModal.classList.remove('hidden');
+                    securityModal.classList.add('flex');
+                });
+                document.getElementById('close-security-modal').addEventListener('click', () => {
+                    securityModal.classList.add('hidden');
+                    securityModal.classList.remove('flex');
+                });
+                document.getElementById('lock-now-btn').addEventListener('click', () => {
+                    securityModal.classList.add('hidden');
+                    securityModal.classList.remove('flex');
+                    lockApp(true);
+                });
+                document.getElementById('enable-pin-only-btn').addEventListener('click', () => {
+                    const pin = document.getElementById('setup-pin-input').value.trim();
+                    if (!/^\d{4}$/.test(pin)) {
+                        showToast('Please enter a valid 4-digit numeric PIN.', 'error');
+                        return;
+                    }
+                    securityConfig.enabled = true;
+                    securityConfig.pin = pin;
+                    securityConfig.biometricEnabled = false;
+                    securityConfig.credentialId = '';
+                    saveSecurityConfig();
+                    securityModal.classList.add('hidden');
+                    securityModal.classList.remove('flex');
+                    showToast('4-digit PIN lock enabled!');
+                });
+                document.getElementById('enable-biometric-btn').addEventListener('click', async () => {
+                    const pin = document.getElementById('setup-pin-input').value.trim();
+                    if (!/^\d{4}$/.test(pin)) {
+                        showToast('Enter a 4-digit backup PIN first.', 'error');
+                        return;
+                    }
+                    try {
+                        const credId = await registerDeviceBiometrics();
+                        securityConfig.enabled = true;
+                        securityConfig.pin = pin;
+                        securityConfig.biometricEnabled = true;
+                        securityConfig.credentialId = credId;
+                        saveSecurityConfig();
+                        securityModal.classList.add('hidden');
+                        securityModal.classList.remove('flex');
+                        showToast('Biometric + PIN lock enabled!');
+                    } catch (err) {
+                        securityConfig.enabled = true;
+                        securityConfig.pin = pin;
+                        securityConfig.biometricEnabled = false;
+                        saveSecurityConfig();
+                        securityModal.classList.add('hidden');
+                        securityModal.classList.remove('flex');
+                        showToast('Biometrics unavailable here; enabled 4-digit PIN lock.', 'info');
+                    }
+                });
+                document.getElementById('disable-lock-btn').addEventListener('click', () => {
+                    securityConfig = { enabled: false, pin: '', biometricEnabled: false, credentialId: '' };
+                    saveSecurityConfig();
+                    securityModal.classList.add('hidden');
+                    securityModal.classList.remove('flex');
+                    showToast('App lock disabled.', 'info');
+                });
+
+                document.querySelectorAll('[data-pin-digit]').forEach(btn => {
+                    btn.addEventListener('click', () => handlePinDigit(btn.dataset.pinDigit));
+                });
+                document.getElementById('pin-backspace-btn').addEventListener('click', () => {
+                    currentPinBuffer = currentPinBuffer.slice(0, -1);
+                    updatePinDots();
+                });
+                document.getElementById('biometric-trigger-btn').addEventListener('click', () => {
+                    verifyDeviceBiometrics()
+                        .then(ok => {
+                            if (ok) unlockApp();
+                            else document.getElementById('lock-error-msg').textContent = 'Biometric check failed. Use PIN.';
+                        })
+                        .catch(() => {
+                            document.getElementById('lock-error-msg').textContent = 'Biometric cancelled. Use PIN.';
+                        });
                 });
 
                 // Backup Menu & Export/Import Actions
@@ -1982,9 +2576,11 @@
                     updateBackupReminderUI();
                 });
 
-                // Overdue summary card navigates to Home
+                // Overdue summary card navigates to People sorted by Overdue
                 document.getElementById('stat-overdue-card').addEventListener('click', () => {
-                    activePage = 'home';
+                    activePage = 'people';
+                    peopleSortOrder = 'overdue';
+                    document.getElementById('people-sort-select').value = 'overdue';
                     renderViews();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
@@ -2090,6 +2686,8 @@
                         closeEditModal();
                         closeEditFriendModal();
                         closeConfirmModal();
+                        securityModal.classList.add('hidden');
+                        securityModal.classList.remove('flex');
                         backupMenu.classList.add('hidden');
                     }
                 });
@@ -2097,10 +2695,15 @@
 
             // Boot Application
             loadState();
+            loadSecurityConfig();
             applyTheme();
             applyCurrencyUI();
+            updateSecurityUI();
             initEventListeners();
             renderAll();
+            if (securityConfig.enabled) {
+                lockApp(true);
+            }
         })();
     </script>
 </body>
