@@ -683,6 +683,10 @@
                     </button>
                 </div>
 
+                <div id="biometric-env-note" class="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-700/40 text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                    Checking biometric availability...
+                </div>
+
                 <div>
                     <label for="setup-pin-input" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">4-Digit Backup PIN <span class="font-normal text-slate-400">(Required)</span></label>
                     <input type="password" id="setup-pin-input" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="Enter 4 digits (e.g. 1234)"
@@ -826,9 +830,46 @@
                 return bytes.buffer;
             }
 
+            async function getBiometricSupportReason() {
+                if (!window.isSecureContext) {
+                    return 'Requires HTTPS or localhost (current page is not a secure context).';
+                }
+                if (window.self !== window.top) {
+                    return 'Blocked inside an embedded preview frame. Open in a standalone browser tab or install as an APK/PWA to use Fingerprint/Face lock.';
+                }
+                if (!window.PublicKeyCredential || !navigator.credentials) {
+                    return 'WebAuthn / Biometrics is not supported on this browser.';
+                }
+                if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+                    try {
+                        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                        if (!available) {
+                            return 'No screen lock / fingerprint / face authenticator detected on this device.';
+                        }
+                    } catch (e) {
+                        return 'Could not verify platform biometrics in this environment.';
+                    }
+                }
+                return '';
+            }
+
+            async function refreshBiometricEnvironmentNote() {
+                const noteEl = document.getElementById('biometric-env-note');
+                if (!noteEl) return;
+                const reason = await getBiometricSupportReason();
+                if (!reason) {
+                    noteEl.className = 'p-3 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-700/40 text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed';
+                    noteEl.textContent = 'Device biometrics are ready on this page. You can enable Fingerprint / Face Lock with a 4-digit backup PIN.';
+                } else {
+                    noteEl.className = 'p-3 rounded-xl bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-700/40 text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed';
+                    noteEl.textContent = `Biometric note: ${reason} You can still use the 4-digit PIN lock right here.`;
+                }
+            }
+
             async function registerDeviceBiometrics() {
-                if (!window.PublicKeyCredential) {
-                    throw new Error('Biometrics not supported in this browser.');
+                const reason = await getBiometricSupportReason();
+                if (reason) {
+                    throw new Error(reason);
                 }
                 const challenge = new Uint8Array(32);
                 window.crypto.getRandomValues(challenge);
@@ -2462,6 +2503,7 @@
                 document.getElementById('security-settings-btn').addEventListener('click', () => {
                     document.getElementById('setup-pin-input').value = securityConfig.pin || '';
                     updateSecurityUI();
+                    refreshBiometricEnvironmentNote();
                     securityModal.classList.remove('hidden');
                     securityModal.classList.add('flex');
                 });
@@ -2512,7 +2554,8 @@
                         saveSecurityConfig();
                         securityModal.classList.add('hidden');
                         securityModal.classList.remove('flex');
-                        showToast('Biometrics unavailable here; enabled 4-digit PIN lock.', 'info');
+                        const detail = err && err.message ? err.message : 'Biometrics unavailable here.';
+                        showToast(`${detail} Saved 4-digit PIN lock instead.`, 'info');
                     }
                 });
                 document.getElementById('disable-lock-btn').addEventListener('click', () => {
