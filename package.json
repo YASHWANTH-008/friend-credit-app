@@ -7,6 +7,7 @@
     "cap:sync": "npx cap sync android"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^6.0.0",
     "@capacitor/core": "^6.1.2"
   },
   "devDependencies": {
