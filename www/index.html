@@ -801,8 +801,15 @@
             let currentPinBuffer = '';
 
             // =========================================================================
-            // BIOMETRIC (WEBAUTHN PLATFORM AUTHENTICATOR) & 4-DIGIT PIN LOCK
+            // BIOMETRIC (CAPACITOR NATIVE + WEBAUTHN) & 4-DIGIT PIN LOCK
             // =========================================================================
+            function getNativeBiometricPlugin() {
+                if (window.Capacitor && window.Capacitor.Plugins) {
+                    return window.Capacitor.Plugins.BiometricAuth || window.Capacitor.Plugins.NativeBiometric || null;
+                }
+                return null;
+            }
+
             function loadSecurityConfig() {
                 try {
                     const saved = localStorage.getItem(SECURITY_KEY);
@@ -831,14 +838,32 @@
             }
 
             async function getBiometricSupportReason() {
+                const nativePlugin = getNativeBiometricPlugin();
+                if (nativePlugin) {
+                    try {
+                        if (typeof nativePlugin.checkBiometry === 'function') {
+                            const res = await nativePlugin.checkBiometry();
+                            if (res && res.isAvailable) return '';
+                            return (res && res.reason) || 'Biometric hardware not available on this device.';
+                        }
+                        if (typeof nativePlugin.isAvailable === 'function') {
+                            const res = await nativePlugin.isAvailable();
+                            if (res && res.isAvailable) return '';
+                            return 'Biometric hardware not available on this device.';
+                        }
+                        return '';
+                    } catch (e) {
+                        return 'Could not check native Android biometrics.';
+                    }
+                }
                 if (!window.isSecureContext) {
                     return 'Requires HTTPS or localhost (current page is not a secure context).';
                 }
                 if (window.self !== window.top) {
-                    return 'Blocked inside an embedded preview frame. Open in a standalone browser tab or install as an APK/PWA to use Fingerprint/Face lock.';
+                    return 'Blocked inside an embedded preview frame. Open in a standalone browser tab or install the APK.';
                 }
                 if (!window.PublicKeyCredential || !navigator.credentials) {
-                    return 'WebAuthn / Biometrics is not supported on this browser.';
+                    return 'WebAuthn is not supported in Android WebView. Add @aparajita/capacitor-biometric-auth to package.json and rebuild the APK.';
                 }
                 if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
                     try {
@@ -859,7 +884,7 @@
                 const reason = await getBiometricSupportReason();
                 if (!reason) {
                     noteEl.className = 'p-3 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-700/40 text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed';
-                    noteEl.textContent = 'Device biometrics are ready on this page. You can enable Fingerprint / Face Lock with a 4-digit backup PIN.';
+                    noteEl.textContent = 'Device biometrics are ready! You can enable Fingerprint / Face Lock with a 4-digit backup PIN.';
                 } else {
                     noteEl.className = 'p-3 rounded-xl bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-700/40 text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed';
                     noteEl.textContent = `Biometric note: ${reason} You can still use the 4-digit PIN lock right here.`;
@@ -871,6 +896,23 @@
                 if (reason) {
                     throw new Error(reason);
                 }
+
+                const nativePlugin = getNativeBiometricPlugin();
+                if (nativePlugin) {
+                    if (typeof nativePlugin.authenticate === 'function') {
+                        await nativePlugin.authenticate({
+                            reason: 'Confirm your fingerprint or face to enable FriendCredit App Lock',
+                            cancelTitle: 'Cancel',
+                            allowDeviceCredential: true
+                        });
+                    } else if (typeof nativePlugin.verifyIdentity === 'function') {
+                        await nativePlugin.verifyIdentity({
+                            reason: 'Confirm your fingerprint or face to enable FriendCredit App Lock'
+                        });
+                    }
+                    return 'native-capacitor-biometric';
+                }
+
                 const challenge = new Uint8Array(32);
                 window.crypto.getRandomValues(challenge);
                 const userId = new Uint8Array(16);
@@ -900,7 +942,31 @@
             }
 
             async function verifyDeviceBiometrics() {
-                if (!window.PublicKeyCredential || !securityConfig.biometricEnabled || !securityConfig.credentialId) {
+                if (!securityConfig.biometricEnabled) return false;
+
+                const nativePlugin = getNativeBiometricPlugin();
+                if (nativePlugin) {
+                    try {
+                        if (typeof nativePlugin.authenticate === 'function') {
+                            await nativePlugin.authenticate({
+                                reason: 'Unlock FriendCredit',
+                                cancelTitle: 'Use PIN',
+                                allowDeviceCredential: true
+                            });
+                            return true;
+                        }
+                        if (typeof nativePlugin.verifyIdentity === 'function') {
+                            await nativePlugin.verifyIdentity({
+                                reason: 'Unlock FriendCredit'
+                            });
+                            return true;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+                if (!window.PublicKeyCredential || !securityConfig.credentialId) {
                     return false;
                 }
                 const challenge = new Uint8Array(32);
