@@ -146,6 +146,9 @@
                         <button id="export-json-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5 cursor-pointer">
                             <span class="text-indigo-500 font-bold">{}</span> Export JSON Backup
                         </button>
+                        <button id="save-backup-as-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5 cursor-pointer">
+                            <span class="text-purple-500 font-bold">📁</span> Save Backup To...
+                        </button>
                         <button id="copy-backup-btn" type="button" class="w-full text-left px-3.5 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2.5 cursor-pointer">
                             <span class="text-sky-400 font-bold">⎘</span> Copy Backup Text
                         </button>
@@ -2405,6 +2408,52 @@
                 showToast('JSON backup downloaded.');
             }
 
+            async function saveBackupToLocation() {
+                const payload = JSON.stringify(buildBackupPayload(), null, 2);
+                const fileName = `friendcredit-backup-${getTodayISO()}.json`;
+
+                // 1. Native Save As / Folder Picker (Chrome / Edge / Desktop & supported Android browsers)
+                if (typeof window.showSaveFilePicker === 'function') {
+                    try {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: fileName,
+                            types: [{
+                                description: 'JSON Backup File',
+                                accept: { 'application/json': ['.json'] }
+                            }]
+                        });
+                        const writable = await handle.createWritable();
+                        await writable.write(payload);
+                        await writable.close();
+                        markBackupCompleted();
+                        showToast('Backup saved to chosen location!');
+                        return;
+                    } catch (err) {
+                        if (err && err.name === 'AbortError') return;
+                    }
+                }
+
+                // 2. Android / Mobile Share Sheet (Save to Google Drive, Files, etc.)
+                try {
+                    const file = new File([payload], fileName, { type: 'application/json' });
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: 'FriendCredit Backup',
+                            text: 'Choose where to save your FriendCredit backup',
+                            files: [file]
+                        });
+                        markBackupCompleted();
+                        showToast('Backup shared!');
+                        return;
+                    }
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+
+                // 3. Fallback to standard download
+                exportJSON();
+            }
+
             function copyBackupText() {
                 const payload = JSON.stringify(buildBackupPayload(), null, 2);
                 copyToClipboard(payload, 'Full JSON backup copied to clipboard!');
@@ -2665,6 +2714,10 @@
                 document.getElementById('export-json-btn').addEventListener('click', () => {
                     backupMenu.classList.add('hidden');
                     exportJSON();
+                });
+                document.getElementById('save-backup-as-btn').addEventListener('click', () => {
+                    backupMenu.classList.add('hidden');
+                    saveBackupToLocation();
                 });
                 document.getElementById('copy-backup-btn').addEventListener('click', () => {
                     backupMenu.classList.add('hidden');
